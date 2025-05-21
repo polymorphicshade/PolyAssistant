@@ -1,0 +1,115 @@
+server {
+  listen 80;
+  server_name ${HOST};
+  return 301 https://$host$request_uri;
+}
+server {
+  listen 443 ssl;
+  server_name ${HOST};
+  ssl_certificate /etc/nginx/certs/cert.crt;
+  ssl_certificate_key /etc/nginx/certs/key.key;
+  # polyassistant.api
+  location /${POLYASSISTANT_API_ROUTE_NAME}/ {
+    proxy_pass ${POLYASSISTANT_API_URL};
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header X-Forwarded-Prefix ${POLYASSISTANT_API_ROUTE_NAME};
+    proxy_http_version 1.1;
+    proxy_set_header Connection "";
+    proxy_buffering off;
+    proxy_request_buffering off;
+    client_max_body_size 0;
+    proxy_connect_timeout 1800;
+    proxy_send_timeout 1800;
+    proxy_read_timeout 1800;
+  }
+  # ollama
+  location /${OLLAMA_ROUTE_NAME}/ {
+    proxy_pass ${OLLAMA_URL};
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_http_version 1.1;
+    proxy_set_header Connection "";
+    proxy_buffering off;
+    proxy_request_buffering off;
+    client_max_body_size 0;
+    proxy_connect_timeout 1800;
+    proxy_send_timeout 1800;
+    proxy_read_timeout 1800;
+    rewrite ^/${OLLAMA_ROUTE_NAME}/(.*)$ /$1 break; # removes the location prefix
+  }
+  # whisper
+  location /${WHISPER_ROUTE_NAME}/ {
+    proxy_pass ${WHISPER_URL};
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_http_version 1.1;
+    proxy_set_header Connection "";
+    proxy_buffering off;
+    proxy_request_buffering off;
+    client_max_body_size 0;
+    proxy_connect_timeout 1800;
+    proxy_send_timeout 1800;
+    proxy_read_timeout 1800;
+    rewrite ^/${WHISPER_ROUTE_NAME}/(.*)$ /$1 break; # removes the location prefix
+  }
+  # zonos
+  location /${ZONOS_ROUTE_NAME}/ {
+    proxy_pass ${ZONOS_URL};
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_http_version 1.1;
+    proxy_set_header Connection "";
+    proxy_buffering off;
+    proxy_request_buffering off;
+    client_max_body_size 0;
+    proxy_connect_timeout 1800;
+    proxy_send_timeout 1800;
+    proxy_read_timeout 1800;
+    rewrite ^/${ZONOS_ROUTE_NAME}/(.*)$ /$1 break; # removes the location prefix
+  }
+  # chatterbox
+  location /${CHATTERBOX_ROUTE_NAME}/ {
+    proxy_pass ${CHATTERBOX_URL};
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_http_version 1.1;
+    proxy_set_header Connection "";
+    proxy_buffering off;
+    proxy_request_buffering off;
+    client_max_body_size 0;
+    proxy_connect_timeout 1800;
+    proxy_send_timeout 1800;
+    proxy_read_timeout 1800;
+    rewrite ^/${CHATTERBOX_ROUTE_NAME}/(.*)$ /$1 break; # removes the location prefix
+  }
+  # searxng
+  location /${SEARXNG_ROUTE_NAME}/ {
+    proxy_pass ${SEARXNG_URL};
+    proxy_set_header   Host             $host;
+    proxy_set_header   Connection       $http_connection;
+    proxy_set_header   X-Scheme         $scheme;
+    proxy_set_header   X-Script-Name    /searxng;
+    proxy_set_header   X-Real-IP        $remote_addr;
+    proxy_set_header   X-Forwarded-For  $proxy_add_x_forwarded_for;
+  }
+  # crawl4ai
+  location /${CRAWL4AI_ROUTE_NAME}/ {
+    proxy_pass ${CRAWL4AI_URL};
+    proxy_set_header   Host             $host;
+    proxy_set_header   Connection       $http_connection;
+    proxy_set_header   X-Scheme         $scheme;
+    proxy_set_header   X-Real-IP        $remote_addr;
+    proxy_set_header   X-Forwarded-For  $proxy_add_x_forwarded_for;
+  }
+}

@@ -1,0 +1,52 @@
+name: package
+
+on:
+  push:
+    # TODO: uncomment when ready
+    # branches:
+    #   - main
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+"
+      - "v[0-9]+.[0-9]+.[0-9]+-preview.[0-9]+.[0-9]+"
+
+env:
+  NUGET_REPO_URL: https://nuget.pkg.github.com/polymorphicshade/index.json
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        dotnet-version: [ '9.0.x' ]
+    steps:
+      # checkout
+      - name: Checkout code
+        uses: actions/checkout@v4
+      # get version
+      - name: Get version
+        run: echo "VERSION=${GITHUB_REF/refs\/tags\/v/}" >> $GITHUB_ENV
+      # dotnet: Setup
+      - name: 'dotnet: Setup'
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: | 
+            9.0.x
+      # dotnet: Restore
+      - name: 'dotnet: Restore'
+        working-directory: ./src
+        run: |
+          dotnet nuget add source "https://nuget.pkg.github.com/polymorphicshade/index.json" --name PolyAssistant --username polymorphicshade --password ${{ secrets.NUGET_PACKAGE_TOKEN }} --store-password-in-clear-text
+          dotnet restore
+      # dotnet: Build
+      - name: 'dotnet: Build'
+        working-directory: ./src
+        run: dotnet build --configuration Release -p:Version=${VERSION}
+      # dotnet: Pack
+      - name: 'dotnet: Pack'
+        working-directory: ./src
+        run: |
+          dotnet pack PolyAssistant.Core/PolyAssistant.Core.csproj --configuration Release -p:Version=${VERSION}
+      # dotnet: Push
+      - name: 'dotnet: Push'
+        working-directory: ./src
+        run: dotnet nuget push PolyAssistant.*/bin/Release/*.nupkg -k ${{ secrets.NUGET_PACKAGE_TOKEN }} -s $NUGET_REPO_URL

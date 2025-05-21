@@ -1,0 +1,8 @@
+{
+    "profiles": {
+        "PolyAssistant.Cli": {
+            "commandName": "Project",
+            "commandLineArgs": "--param1 \"value1\" --param2 \"value2\""
+        }
+    }
+}

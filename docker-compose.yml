@@ -1,0 +1,220 @@
+#
+# this file should sit next to the 'repos' folder
+#
+
+services:
+
+  # automatic updates
+  watchtower:
+    container_name: "watchtower"
+    image: containrrr/watchtower
+    restart: unless-stopped
+    networks:
+      - private
+    environment:
+      - WATCHTOWER_CLEANUP=true
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  # Ollama
+  ollama:
+    container_name: "ollama"
+    image: ollama/ollama
+    restart: unless-stopped
+    networks:
+      - private
+      - public # needed for downloading models (remove/comment-out later if needed)
+    volumes:
+      - ${DATA_DIRECTORY}/ollama:/root/.ollama
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+  # Zonos
+  zonos:
+    container_name: "zonos"
+    image: ghcr.io/polymorphicshade/polyassistant.zonos:latest
+    runtime: nvidia
+    restart: unless-stopped
+    networks:
+      - private
+      - public # needed for downloading models (remove/comment-out later if needed)
+    stdin_open: true
+    tty: true
+    command: ["python3", "gradio_interface.py"]
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=0
+      - GRADIO_SHARE=False
+    user: "0:0"
+    volumes:
+      - ${DATA_DIRECTORY}/zonos:/root/.cache
+
+  # Chatterbox
+  chatterbox:
+    container_name: "chatterbox"
+    image: ghcr.io/polymorphicshade/polyassistant.chatterbox:latest
+    runtime: nvidia
+    restart: unless-stopped
+    networks:
+      - private
+      - public # needed for downloading models (remove/comment-out later if needed)
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=0
+    user: "0:0"
+
+  # whisper
+  whisper:
+    container_name: "whisper"
+    image: onerahmet/openai-whisper-asr-webservice:latest-gpu
+    restart: unless-stopped
+    networks:
+      - private
+      - public
+    environment:
+      - ASR_ENGINE=openai_whisper
+      - ASR_MODEL=base
+    volumes:
+      - ${DATA_DIRECTORY}/whisper:/root/.cache/
+
+  # MySQL database
+  mariadb:
+    container_name: "mariadb"
+    image: mariadb:latest
+    restart: unless-stopped
+    networks:
+      - private
+    user: 0:0
+    environment:
+      MYSQL_ROOT_PASSWORD: pass123
+      MYSQL_DATABASE: main_db
+    volumes:
+      - ${DATA_DIRECTORY}/database:/var/lib/mysql
+
+  # SearXNG
+  searxng:
+    container_name: "searxng"
+    image: docker.io/searxng/searxng:latest
+    restart: unless-stopped
+    user: 0:0
+#     environment:
+#       - SEARXNG_BASE_URL=https://your.public.domain/
+#    cap_drop:
+#      - ALL
+    cap_add:
+      - CHOWN
+      - SETGID
+      - SETUID
+    logging:
+      driver: json-file
+      options:
+        max-size: 1m
+        max-file: 1
+    networks:
+      - public
+      - private
+    volumes:
+      - ./searxng/settings.yml:/etc/searxng/settings.yml:rw
+      - ${DATA_DIRECTORY}/searxng:/etc/searxng:rw
+
+  # Crawl4Ai
+  crawl4ai:
+    container_name: "crawl4ai"
+    image: unclecode/crawl4ai:latest
+    restart: unless-stopped
+    networks:
+      - public
+      - private
+    ports:
+      - 11235:11235 # playground: http://<ip>:11235/playground/
+
+  # PolyAssistant API
+  polyassistant.api:
+    container_name: "polyassistant.api"
+    image: ghcr.io/polymorphicshade/polyassistant:latest
+    user: 0:0
+    restart: unless-stopped
+    networks:
+      - private
+    environment:
+      - Whisper__Url=http://whisper:9000
+      - Zonos__Url=http://zonos:7861 # api
+      - Chatterbox__Url=http://chatterbox:7861 # api
+      - Ollama__Url=http://ollama:11434
+      - Ollama__DefaultModel=llama3.2:latest
+      - Ollama__DefaultSystemMessage=You are a helpful assistant. Keep your responses brief.
+      - SearXng__Url=http://searxng:8080
+      - Crawl4Ai__Url=http://crawl4ai:11235
+      - Caching__DatabaseType=MySql
+      - Caching__ConnectionString=Server=mariadb;Port=3306;Database=polyassistant.api;Uid=root;Pwd=pass123;
+    volumes:
+      - ${DATA_DIRECTORY}/uploads:/app/uploads
+    depends_on:
+      whisper:
+          condition: service_started
+      zonos:
+          condition: service_started
+      chatterbox:
+          condition: service_started
+      ollama:
+          condition: service_started
+      searxng:
+          condition: service_started
+      mariadb:
+          condition: service_started
+      crawl4ai:
+          condition: service_started
+
+  # Nginx Proxy for HTTPS
+  nginx:
+    container_name: "nginx"
+    image: nginx:latest
+    user: 0:0
+    restart: unless-stopped
+    networks:
+      - private
+      - public
+    environment:
+      - POLYASSISTANT_API_ROUTE_NAME=polyassistant
+      - POLYASSISTANT_API_URL=http://polyassistant.api:8080/
+      - OLLAMA_ROUTE_NAME=ollama
+      - OLLAMA_URL=http://ollama:11434/
+      - WHISPER_ROUTE_NAME=whisper
+      - WHISPER_URL=http://whisper:9000/
+      - ZONOS_ROUTE_NAME=zonos
+      - ZONOS_URL=http://zonos:7861/ # api
+      - CHATTERBOX_ROUTE_NAME=chatterbox
+      - CHATTERBOX_URL=http://chatterbox:7861/ # api
+      - SEARXNG_ROUTE_NAME=searxng
+      - SEARXNG_URL=http://searxng:8080/
+      - CRAWL4AI_ROUTE_NAME=crawl4ai
+      - CRAWL4AI_URL=http://crawl4ai:11235/
+    ports:
+      - 443:443
+    volumes:
+      - ./nginx/nginx.conf.template:/etc/nginx/templates/nginx.conf.template
+      - ./nginx/certs:/etc/nginx/certs:ro
+    depends_on:
+      polyassistant.api:
+          condition: service_started
+      ollama:
+          condition: service_started
+      whisper:
+          condition: service_started
+      zonos:
+          condition: service_started
+      chatterbox:
+          condition: service_started
+      searxng:
+          condition: service_started
+      crawl4ai:
+          condition: service_started
+
+networks:
+  public:
+    driver: bridge
+  private:
+    internal: true

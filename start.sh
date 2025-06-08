@@ -6,10 +6,6 @@ if [ "$(id -u)" -ne 0 ]; then
     exit 1
 fi
 
-# login to the Github registry
-echo "Logging in to ghcr.io..."
-docker login ghcr.io
-
 # run docker (will also run at start-up)
 docker compose pull
 docker compose "$@" up -d --no-deps --build

@@ -366,3 +366,5 @@ FodyWeavers.xsd
 *appsettings.*.json
 *.db*
 nginx/certs/
+.repos/
+.data/

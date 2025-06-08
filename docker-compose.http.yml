@@ -39,7 +39,9 @@ services:
   # Zonos
   zonos:
     container_name: "zonos"
-    image: ghcr.io/polymorphicshade/polyassistant.zonos:latest
+    build:
+      context: .repos/PolyAssistant.Zonos/.
+      dockerfile: Dockerfile
     restart: unless-stopped
     runtime: nvidia
     networks:
@@ -60,7 +62,9 @@ services:
   # Chatterbox
   chatterbox:
     container_name: "chatterbox"
-    image: ghcr.io/polymorphicshade/polyassistant.chatterbox:latest
+    build:
+      context: .repos/PolyAssistant.Chatterbox/.
+      dockerfile: Dockerfile
     restart: unless-stopped
     runtime: nvidia
     networks:
@@ -143,7 +147,9 @@ services:
   # PolyAssistant API
   polyassistant.api:
     container_name: "polyassistant.api"
-    image: ghcr.io/polymorphicshade/polyassistant:latest
+    build:
+      context: ./src
+      dockerfile: PolyAssistant.Api/Dockerfile
     restart: unless-stopped
     user: 0:0
     networks:

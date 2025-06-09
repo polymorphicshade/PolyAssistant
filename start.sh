@@ -6,6 +6,18 @@ if [ "$(id -u)" -ne 0 ]; then
     exit 1
 fi
 
+# stop the stack (in case there are new changes)
+if docker compose ps --services --filter "status=running" | grep -q .; then
+    docker compose down
+fi
+
+# pull latest changes
+git -C .repos/PolyAssistant.Zonos/ pull
+git -C .repos/PolyAssistant.Chatterbox/ pull
+
+# clear build cache (so we don't continue to pile on a mess as updates are built)
+docker builder prune -f
+
 # run docker (will also run at start-up)
 docker compose pull
 docker compose "$@" up -d --no-deps --build

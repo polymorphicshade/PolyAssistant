@@ -131,14 +131,36 @@ services:
     ports:
       - 11235:11235 # playground: http://<ip>:11235/playground/
 
+  # FramePack-Studio
+  framepack-studio:
+    container_name: "framepack-studio"
+    build:
+      context: .repos/PolyAssistant.FramePack-Studio/.
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    user: "0:0"
+    runtime: nvidia
+    networks:
+      - private
+      - public # needed for downloading models (remove/comment-out later if needed)
+    environment:
+      - GRADIO_ROOT_PATH=/framepack-studio
+      - NVIDIA_VISIBLE_DEVICES=0
+    volumes:
+      - ${DATA_DIRECTORY}/framepack-studio/input:/app/input_files
+      - ${DATA_DIRECTORY}/framepack-studio/output:/app/output
+      - ${DATA_DIRECTORY}/framepack-studio/loras:/app/loras
+      - ${DATA_DIRECTORY}/framepack-studio/toolbox:/app/modules/toolbox/bin
+      - ${DATA_DIRECTORY}/framepack-studio/hf_download:/app/hf_download
+
   # PolyAssistant API
   polyassistant.api:
     container_name: "polyassistant.api"
     build:
       context: ./src
       dockerfile: PolyAssistant.Api/Dockerfile
-    user: 0:0
     restart: unless-stopped
+    user: 0:0
     networks:
       - private
     environment:
@@ -150,25 +172,28 @@ services:
       - Ollama__DefaultSystemMessage=You are a helpful assistant. Keep your responses brief.
       - SearXng__Url=http://searxng:8080
       - Crawl4Ai__Url=http://crawl4ai:11235
+      - FramePack-Studio__Url=http://framepack-studio:7860
       - Caching__DatabaseType=MySql
       - Caching__ConnectionString=Server=mariadb;Port=3306;Database=polyassistant.api;Uid=root;Pwd=pass123;
     volumes:
       - ${DATA_DIRECTORY}/uploads:/app/uploads
     depends_on:
       whisper:
-          condition: service_started
+        condition: service_started
       zonos:
-          condition: service_started
+        condition: service_started
       chatterbox:
-          condition: service_started
+        condition: service_started
       ollama:
-          condition: service_started
+        condition: service_started
       searxng:
-          condition: service_started
+        condition: service_started
       mariadb:
-          condition: service_started
+        condition: service_started
       crawl4ai:
-          condition: service_started
+        condition: service_started
+      framepack-studio:
+        condition: service_started
 
   # Nginx Proxy for HTTPS
   nginx:
@@ -194,6 +219,8 @@ services:
       - SEARXNG_URL=http://searxng:8080/
       - CRAWL4AI_ROUTE_NAME=crawl4ai
       - CRAWL4AI_URL=http://crawl4ai:11235/
+      - FRAMEPACK_ROUTE_NAME=framepack-studio
+      - FRAMEPACK_URL=http://framepack-studio:7860/
     ports:
       - 443:443
     volumes:
@@ -201,19 +228,21 @@ services:
       - ./nginx/certs:/etc/nginx/certs:ro
     depends_on:
       polyassistant.api:
-          condition: service_started
+        condition: service_started
       ollama:
-          condition: service_started
+        condition: service_started
       whisper:
-          condition: service_started
+        condition: service_started
       zonos:
-          condition: service_started
+        condition: service_started
       chatterbox:
-          condition: service_started
+        condition: service_started
       searxng:
-          condition: service_started
+        condition: service_started
       crawl4ai:
-          condition: service_started
+        condition: service_started
+      framepack-studio:
+        condition: service_started
 
 networks:
   public:

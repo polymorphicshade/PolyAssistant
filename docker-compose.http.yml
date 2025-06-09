@@ -93,16 +93,27 @@ services:
     ports:
       - 9000:9000
 
+  # MySQL database
+  mariadb:
+    container_name: "mariadb"
+    image: mariadb:latest
+    restart: unless-stopped
+    networks:
+      - private
+    user: 0:0
+    environment:
+      MYSQL_ROOT_PASSWORD: pass123
+      MYSQL_DATABASE: main_db
+    volumes:
+      - ./searxng/settings.yml:/etc/searxng/settings.yml:rw
+      - ${DATA_DIRECTORY}/database:/var/lib/mysql
+
   # SearXNG
   searxng:
     container_name: "searxng"
     image: docker.io/searxng/searxng:latest
     restart: unless-stopped
     user: 0:0
-#     environment:
-#       - SEARXNG_BASE_URL=https://your.public.domain/
-#    cap_drop:
-#      - ALL
     cap_add:
       - CHOWN
       - SETGID
@@ -129,20 +140,27 @@ services:
     ports:
       - 11235:11235 # playground: http://<ip>:11235/playground/
 
-  # MySQL database
-  mariadb:
-    container_name: "mariadb"
-    image: mariadb:latest
+  # FramePack-Studio
+  framepack-studio:
+    container_name: "framepack-studio"
+    build:
+      context: .repos/PolyAssistant.FramePack-Studio/.
+      dockerfile: Dockerfile
     restart: unless-stopped
+    user: "0:0"
+    runtime: nvidia
     networks:
       - private
-    user: 0:0
+      - public # needed for downloading models (remove/comment-out later if needed)
     environment:
-      MYSQL_ROOT_PASSWORD: pass123
-      MYSQL_DATABASE: main_db
+      - GRADIO_ROOT_PATH=/framepack-studio
+      - NVIDIA_VISIBLE_DEVICES=0
     volumes:
-      - ./searxng/settings.yml:/etc/searxng/settings.yml:rw
-      - ${DATA_DIRECTORY}/database:/var/lib/mysql
+      - ${DATA_DIRECTORY}/framepack-studio/input:/app/input_files
+      - ${DATA_DIRECTORY}/framepack-studio/output:/app/output
+      - ${DATA_DIRECTORY}/framepack-studio/loras:/app/loras
+      - ${DATA_DIRECTORY}/framepack-studio/toolbox:/app/modules/toolbox/bin
+      - ${DATA_DIRECTORY}/framepack-studio/hf_download:/app/hf_download
 
   # PolyAssistant API
   polyassistant.api:
@@ -164,6 +182,7 @@ services:
       - Ollama__DefaultSystemMessage=You are a helpful assistant. Keep your responses brief.
       - SearXng__Url=http://searxng:8080
       - Crawl4Ai__Url=http://crawl4ai:11235
+      - FramePack-Studio__Url=http://framepack-studio:7860
       - Caching__DatabaseType=MySql
       - Caching__ConnectionString=Server=mariadb;Port=3306;Database=polyassistant.api;Uid=root;Pwd=pass123;
     volumes:
@@ -171,13 +190,22 @@ services:
     ports:
       - 8080:8080
     depends_on:
-      - whisper
-      - zonos
-      - chatterbox
-      - ollama
-      - searxng
-      - mariadb
-      - crawl4ai
+      whisper:
+        condition: service_started
+      zonos:
+        condition: service_started
+      chatterbox:
+        condition: service_started
+      ollama:
+        condition: service_started
+      searxng:
+        condition: service_started
+      mariadb:
+        condition: service_started
+      crawl4ai:
+        condition: service_started
+      framepack-studio:
+        condition: service_started
 
 networks:
   public:

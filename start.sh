@@ -14,6 +14,7 @@ fi
 # pull latest changes
 git -C .repos/PolyAssistant.Zonos/ pull
 git -C .repos/PolyAssistant.Chatterbox/ pull
+git -C .repos/PolyAssistant.FramePack-Studio/ pull
 
 # clear build cache (so we don't continue to pile on a mess as updates are built)
 docker builder prune -f

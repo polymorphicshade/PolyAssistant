@@ -18,9 +18,18 @@ if [ "$1" == "vm" ]; then
 fi
 
 # install Nvidia stuff
-apt autoremove nvidia* --purge -y
-apt install -y ubuntu-drivers-common
-ubuntu-drivers autoinstall
+wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/cuda-ubuntu2404.pin
+sudo mv cuda-ubuntu2404.pin /etc/apt/preferences.d/cuda-repository-pin-600
+wget https://developer.download.nvidia.com/compute/cuda/12.9.1/local_installers/cuda-repo-ubuntu2404-12-9-local_12.9.1-575.57.08-1_amd64.deb
+sudo dpkg -i cuda-repo-ubuntu2404-12-9-local_12.9.1-575.57.08-1_amd64.deb
+sudo cp /var/cuda-repo-ubuntu2404-12-9-local/cuda-*-keyring.gpg /usr/share/keyrings/
+sudo apt-get update
+sudo apt-get -y install cuda-toolkit-12-9
+sudo apt-get install -y nvidia-open # OR cuda-drivers (proprietary)
+
+# apt autoremove nvidia* --purge -y
+# apt install -y ubuntu-drivers-common
+# ubuntu-drivers autoinstall
 
 # install Docker stuff
 apt update -y
@@ -54,6 +63,7 @@ openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout nginx/certs/key.key 
 mkdir .repos
 git clone https://github.com/polymorphicshade/PolyAssistant.Zonos.git .repos/PolyAssistant.Zonos
 git clone https://github.com/polymorphicshade/PolyAssistant.Chatterbox.git .repos/PolyAssistant.Chatterbox
+git clone https://github.com/polymorphicshade/PolyAssistant.FramePack-Studio.git .repos/PolyAssistant.FramePack-Studio
 
 # make a directory for PolyAssistant data
 mkdir .data

@@ -26,6 +26,7 @@ services:
       - public # needed for downloading models (remove/comment-out later if needed)
     volumes:
       - ${DATA_DIRECTORY}/ollama:/root/.ollama
+      - ${DATA_DIRECTORY}/uploads:/root/.uploads
     deploy:
       resources:
         reservations:

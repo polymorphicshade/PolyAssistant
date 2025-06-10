@@ -13,10 +13,10 @@ public sealed class ModelController(IOllamaService ollamaService) : ControllerBa
     [Route("create")]
     public async Task<IActionResult> CreateModelAsync([FromBody] ModelCreateRequestModel request)
     {
-        var path = request.Path;
+        var name = request.Name;
         var modelfile = request.Modelfile.ToModelfileContent();
 
-        await ollamaService.CreateModelAsync(path, modelfile);
+        await ollamaService.CreateModelAsync(name, modelfile);
 
         return Ok();
     }

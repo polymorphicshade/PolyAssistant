@@ -10,10 +10,12 @@ namespace PolyAssistant.Core.Services;
 public sealed class FileSystemService : IFileSystemService
 {
     private readonly ILogger<FileSystemService> _logger;
+    private readonly IHttpClientFactory _httpClientFactory;
 
-    public FileSystemService(ILogger<FileSystemService> logger, IOptions<FileManagementConfiguration> configuration)
+    public FileSystemService(ILogger<FileSystemService> logger, IHttpClientFactory httpClientFactory, IOptions<FileManagementConfiguration> configuration)
     {
         _logger = logger;
+        _httpClientFactory = httpClientFactory;
 
         var rootDirectoryPath = configuration.Value.RootDirectoryPath;
 
@@ -58,6 +60,35 @@ public sealed class FileSystemService : IFileSystemService
                 yield return path;
             }
         }
+    }
+
+    public async Task DownloadFileAsync(string url, string destinationPath, CancellationToken cancellationToken = default)
+    {
+        destinationPath = GetPathNormalized(destinationPath);
+
+        Directory.CreateDirectory(Path.GetDirectoryName(destinationPath) ?? throw new ArgumentException("Could not get directory name"));
+
+        var httpClient = _httpClientFactory.CreateClient();
+
+        var response = await httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+        response.EnsureSuccessStatusCode();
+
+        const int bufferSize = 8192;
+
+        await using var contentStream = await response.Content.ReadAsStreamAsync(cancellationToken);
+        await using var fileStream = new FileStream(destinationPath, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize, true);
+
+        var buffer = new byte[8192];
+        var totalBytesRead = 0L;
+        int bytesRead;
+
+        while ((bytesRead = await contentStream.ReadAsync(buffer, 0, buffer.Length, cancellationToken)) > 0)
+        {
+            await fileStream.WriteAsync(buffer, 0, bytesRead, cancellationToken);
+            totalBytesRead += bytesRead;
+        }
+
+        _logger.LogInformation("Downloaded {total} byte(s) to path: {path}", totalBytesRead, destinationPath);
     }
 
     public async Task SaveFileAsync(byte[] data, string path)

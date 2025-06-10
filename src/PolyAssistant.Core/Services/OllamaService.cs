@@ -18,14 +18,16 @@ public sealed class OllamaService : IOllamaService
     private readonly ILogger<OllamaService> _logger;
     private readonly ChatHistoryDbContext _chatHistoryDbContext;
     private readonly IHttpClientFactory _httpClientFactory;
+    private readonly IFileSystemService _fileSystemService;
     private readonly IOptions<OllamaConfiguration> _configuration;
     private readonly Kernel _kernel;
 
-    public OllamaService(ILogger<OllamaService> logger, ChatHistoryDbContext chatHistoryDbContext, IHttpClientFactory httpClientFactory, IOptions<OllamaConfiguration> configuration)
+    public OllamaService(ILogger<OllamaService> logger, ChatHistoryDbContext chatHistoryDbContext, IHttpClientFactory httpClientFactory, IFileSystemService fileSystemService, IOptions<OllamaConfiguration> configuration)
     {
         _logger = logger;
         _chatHistoryDbContext = chatHistoryDbContext;
         _httpClientFactory = httpClientFactory;
+        _fileSystemService = fileSystemService;
         _configuration = configuration;
 
         var url = $"{configuration.Value.Url}/v1";
@@ -138,8 +140,8 @@ public sealed class OllamaService : IOllamaService
             content.Add(new ImageContent(imageContext));
         }
 
-        var chatCompletionServiceId = imageContext == null 
-            ? "chat" 
+        var chatCompletionServiceId = imageContext == null
+            ? "chat"
             : "vision";
 
         var chatCompletionService = _kernel.GetRequiredService<IChatCompletionService>(chatCompletionServiceId);
@@ -193,14 +195,22 @@ public sealed class OllamaService : IOllamaService
         return conversation.ToModel();
     }
 
-    public async Task CreateModelAsync(string path, string modelfile, CancellationToken cancellationToken = default)
+    public async Task CreateModelAsync(string name, string modelfile, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        var httpClient = _httpClientFactory.CreateClient();
+
+        var response = await httpClient.PostAsJsonAsync($"{_configuration.Value.Url}/api/create", new
+        {
+            name,
+            modelfile
+        }, cancellationToken);
+
+        response.EnsureSuccessStatusCode();
     }
 
-    public async Task DownloadModelAsync(string url, string destinationPath, CancellationToken cancellationToken = default)
+    public Task DownloadModelAsync(string url, string destinationPath, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        return _fileSystemService.DownloadFileAsync(url, destinationPath, cancellationToken);
     }
 
     // helpers

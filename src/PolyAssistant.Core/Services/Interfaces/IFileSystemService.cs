@@ -8,6 +8,8 @@ public interface IFileSystemService
 
     IEnumerable<string> FindFiles(FileQueryModel query);
 
+    Task DownloadFileAsync(string url, string destinationPath, CancellationToken cancellationToken = default);
+
     Task SaveFileAsync(byte[] bytes, string path);
 
     bool DeleteFile(string path);

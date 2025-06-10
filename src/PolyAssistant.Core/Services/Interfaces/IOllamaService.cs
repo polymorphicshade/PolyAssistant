@@ -15,7 +15,7 @@ public interface IOllamaService
 
     Task<ChatConversationModel?> ResetConversationAsync(Guid conversationId, long? messageId = null, CancellationToken cancellationToken = default);
 
-    Task CreateModelAsync(string path, string modelfile, CancellationToken cancellationToken = default);
+    Task CreateModelAsync(string name, string modelfile, CancellationToken cancellationToken = default);
 
     Task DownloadModelAsync(string url, string destinationPath, CancellationToken cancellationToken = default);
 }

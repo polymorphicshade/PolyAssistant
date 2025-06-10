@@ -163,6 +163,7 @@ services:
     restart: unless-stopped
     user: 0:0
     networks:
+      - public
       - private
     environment:
       - Whisper__Url=http://whisper:9000

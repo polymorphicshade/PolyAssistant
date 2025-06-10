@@ -1,6 +1,7 @@
 ﻿using System.Net.Security;
 using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
+using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
@@ -8,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using PolyAssistant.Core.Configuration;
 using PolyAssistant.Core.Data.Chat;
 using PolyAssistant.Core.Models.Chat;
+using PolyAssistant.Core.Models.Model;
 using PolyAssistant.Core.Services;
 using PolyAssistant.Core.Services.Interfaces;
 
@@ -249,8 +251,9 @@ public static class Extensions
 
         if (n == 0)
         {
-            return (m == 0) ? 1.0 : 0.0; // If s1 is empty, similarity is 0 unless s2 is also empty
+            return m == 0 ? 1.0 : 0.0; // If s1 is empty, similarity is 0 unless s2 is also empty
         }
+
         if (m == 0)
         {
             return 0.0; // If s2 is also empty, similarity is 0
@@ -275,13 +278,13 @@ public static class Extensions
             for (var j = 1; j <= m; j++)
             {
                 // Step 3
-                var cost = (other[j - 1] == str[i - 1]) ? 0 : 1;
+                var cost = other[j - 1] == str[i - 1] ? 0 : 1;
 
                 // Step 4
                 d[i, j] = Math.Min(
-                    Math.Min(d[i - 1, j] + 1,      // Deletion
-                        d[i, j - 1] + 1),     // Insertion
-                    d[i - 1, j - 1] + cost);   // Substitution
+                    Math.Min(d[i - 1, j] + 1, // Deletion
+                        d[i, j - 1] + 1), // Insertion
+                    d[i - 1, j - 1] + cost); // Substitution
             }
         }
 
@@ -291,10 +294,55 @@ public static class Extensions
         // Normalize the distance to a similarity score
         // The maximum possible distance is the length of the longer string.
         double maxLength = Math.Max(n, m);
-        if (maxLength == 0) return 1.0; // Both strings are empty
+        if (maxLength == 0)
+        {
+            return 1.0; // Both strings are empty
+        }
 
-        var similarity = 1.0 - (levenshteinDistance / maxLength);
+        var similarity = 1.0 - levenshteinDistance / maxLength;
 
         return similarity;
+    }
+
+    public static string ToModelfileContent(this ModelfileModel model)
+    {
+        var sb = new StringBuilder();
+
+        if (!string.IsNullOrEmpty(model.From))
+        {
+            sb.AppendLine($"FROM {model.From}");
+        }
+
+        if (!string.IsNullOrEmpty(model.System))
+        {
+            sb.AppendLine($"SYSTEM \"\"\"{model.System.Replace("\"", "\\\"")}\"\"\"");
+        }
+
+        if (!string.IsNullOrEmpty(model.Message))
+        {
+            sb.AppendLine($"MESSAGE \"\"\"{model.Message.Replace("\"", "\\\"")}\"\"\"");
+        }
+
+        if (!string.IsNullOrEmpty(model.License))
+        {
+            sb.AppendLine($"LICENSE \"\"\"{model.License.Replace("\"", "\\\"")}\"\"\"");
+        }
+
+        foreach (var param in model.Parameters)
+        {
+            sb.AppendLine($"PARAMETER {param.Key} {param.Value}");
+        }
+
+        if (!string.IsNullOrEmpty(model.Template))
+        {
+            sb.AppendLine($"TEMPLATE \"\"\"{model.Template.Replace("\"", "\\\"")}\"\"\"");
+        }
+
+        if (!string.IsNullOrEmpty(model.Adapter))
+        {
+            sb.AppendLine($"ADAPTER {model.Adapter}");
+        }
+
+        return sb.ToString().Trim();
     }
 }

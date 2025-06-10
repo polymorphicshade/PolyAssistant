@@ -193,6 +193,16 @@ public sealed class OllamaService : IOllamaService
         return conversation.ToModel();
     }
 
+    public async Task CreateModelAsync(string path, string modelfile, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
+
+    public async Task DownloadModelAsync(string url, string destinationPath, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
+
     // helpers
 
     private async Task PullModelAsync(string model, CancellationToken cancellationToken = default)

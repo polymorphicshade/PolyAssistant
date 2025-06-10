@@ -24,6 +24,8 @@ services:
     networks:
       - private
       - public # needed for downloading models (remove/comment-out later if needed)
+    environment:
+      - OLLAMA_DEBUG=1
     volumes:
       - ${DATA_DIRECTORY}/ollama:/root/.ollama
       - ${DATA_DIRECTORY}/uploads:/root/.uploads

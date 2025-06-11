@@ -26,6 +26,32 @@ services:
       - public # needed for downloading models (remove/comment-out later if needed)
     volumes:
       - ${DATA_DIRECTORY}/ollama:/root/.ollama
+    ports:
+      - 11434:11434
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+  # Open-WebUI
+  open-webui:
+    container_name: "open-webui"
+    image: ghcr.io/open-webui/open-webui:latest
+    restart: unless-stopped
+    networks:
+      - private
+      - public
+    environment:
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - DEFAULT_MODELS=llama3.2:instruct
+      - WEBUI_NAME=AI Chat
+    volumes:
+      - ${DATA_DIRECTORY}/open-webui:/app/backend/data
+    depends_on:
+      - ollama
     deploy:
       resources:
         reservations:
@@ -194,6 +220,8 @@ services:
         condition: service_started
       framepack-studio:
         condition: service_started
+      open-webui:
+        condition: service_started
 
   # Nginx Proxy for HTTPS
   nginx:
@@ -207,8 +235,9 @@ services:
     environment:
       - POLYASSISTANT_API_ROUTE_NAME=polyassistant
       - POLYASSISTANT_API_URL=http://polyassistant.api:8080/
-      - OLLAMA_ROUTE_NAME=ollama
+      - OLLAMA_ROUTE_NAME=ollama_api
       - OLLAMA_URL=http://ollama:11434/
+      - OPEN_WEBUI_URL=http://open-webui:8080/
       - WHISPER_ROUTE_NAME=whisper
       - WHISPER_URL=http://whisper:9000/
       - ZONOS_ROUTE_NAME=zonos
@@ -242,6 +271,8 @@ services:
       crawl4ai:
         condition: service_started
       framepack-studio:
+        condition: service_started
+      open-webui:
         condition: service_started
 
 networks:

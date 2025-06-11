@@ -36,6 +36,30 @@ services:
               count: 1
               capabilities: [gpu]
 
+  # Open-WebUI
+  open-webui:
+    container_name: "open-webui"
+    image: ghcr.io/open-webui/open-webui:latest
+    restart: unless-stopped
+    networks:
+      - private
+      - public
+    environment:
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - DEFAULT_MODELS=llama3.2:instruct
+      - WEBUI_NAME=AI Chat
+    volumes:
+      - ${DATA_DIRECTORY}/open-webui:/app/backend/data
+    depends_on:
+      - ollama
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
   # Zonos
   zonos:
     container_name: "zonos"

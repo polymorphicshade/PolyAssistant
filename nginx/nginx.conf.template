@@ -22,7 +22,7 @@ server {
     proxy_set_header X-Forwarded-Proto $scheme;
     proxy_read_timeout 60s;
     proxy_send_timeout 60s;
-    client_max_body_size 100M;
+    client_max_body_size 0;
   }
   # polyassistant.api
   location /${POLYASSISTANT_API_ROUTE_NAME}/ {
@@ -36,11 +36,10 @@ server {
     proxy_set_header Connection "";
     proxy_buffering off;
     proxy_request_buffering off;
-    client_max_body_size 0;
     proxy_connect_timeout 1800;
     proxy_send_timeout 1800;
     proxy_read_timeout 1800;
-    client_max_body_size 100M;
+    client_max_body_size 0;
   }
   # ollama
   location /${OLLAMA_ROUTE_NAME}/ {
@@ -53,11 +52,11 @@ server {
     proxy_set_header Connection "";
     proxy_buffering off;
     proxy_request_buffering off;
-    client_max_body_size 0;
     proxy_connect_timeout 1800;
     proxy_send_timeout 1800;
     proxy_read_timeout 1800;
-    rewrite ^/${OLLAMA_ROUTE_NAME}/(.*)$ /$1 break; # removes the location prefix
+    rewrite ^/${OLLAMA_ROUTE_NAME}/(.*)$ /$1 break;
+    client_max_body_size 0;
   }
   # whisper
   location /${WHISPER_ROUTE_NAME}/ {
@@ -70,12 +69,11 @@ server {
     proxy_set_header Connection "";
     proxy_buffering off;
     proxy_request_buffering off;
-    client_max_body_size 0;
     proxy_connect_timeout 1800;
     proxy_send_timeout 1800;
     proxy_read_timeout 1800;
     rewrite ^/${WHISPER_ROUTE_NAME}/(.*)$ /$1 break;
-    client_max_body_size 100M;
+    client_max_body_size 0;
   }
   # zonos
   location /${ZONOS_ROUTE_NAME}/ {
@@ -88,12 +86,11 @@ server {
     proxy_set_header Connection "";
     proxy_buffering off;
     proxy_request_buffering off;
-    client_max_body_size 0;
     proxy_connect_timeout 1800;
     proxy_send_timeout 1800;
     proxy_read_timeout 1800;
     rewrite ^/${ZONOS_ROUTE_NAME}/(.*)$ /$1 break;
-    client_max_body_size 100M;
+    client_max_body_size 0;
   }
   # chatterbox
   location /${CHATTERBOX_ROUTE_NAME}/ {
@@ -106,12 +103,11 @@ server {
     proxy_set_header Connection "";
     proxy_buffering off;
     proxy_request_buffering off;
-    client_max_body_size 0;
     proxy_connect_timeout 1800;
     proxy_send_timeout 1800;
     proxy_read_timeout 1800;
     rewrite ^/${CHATTERBOX_ROUTE_NAME}/(.*)$ /$1 break;
-    client_max_body_size 100M;
+    client_max_body_size 0;
   }
   # searxng
   location /${SEARXNG_ROUTE_NAME}/ {
@@ -143,6 +139,6 @@ server {
     proxy_set_header Host $host;
     proxy_set_header X-Forwarded-Host $host;
     proxy_set_header X-Forwarded-Proto $scheme;
-    client_max_body_size 100M;
+    client_max_body_size 0;
   }
 }

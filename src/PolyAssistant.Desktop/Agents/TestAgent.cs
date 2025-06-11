@@ -1,11 +1,9 @@
 ﻿using System.ComponentModel;
 using System.Diagnostics;
-using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel;
 using PolyAssistant.Core.Agents;
 using PolyAssistant.Core.Agents.Interfaces;
-using PolyAssistant.Desktop.Components;
 
 namespace PolyAssistant.Desktop.Agents;
 

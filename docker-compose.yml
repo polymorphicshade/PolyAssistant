@@ -77,6 +77,7 @@ services:
     environment:
       - NVIDIA_VISIBLE_DEVICES=0
       - GRADIO_SHARE=False
+      - GRADIO_ROOT_PATH=/zonos-ui
     user: "0:0"
     volumes:
       - ${DATA_DIRECTORY}/zonos:/root/.cache
@@ -94,11 +95,9 @@ services:
       - public # needed for downloading models (remove/comment-out later if needed)
     environment:
       - NVIDIA_VISIBLE_DEVICES=0
+      - GRADIO_SHARE=False
       - GRADIO_ROOT_PATH=/chatterbox-ui
     user: "0:0"
-    ports:
-      - 7860:7860
-      - 7861:7861
 
   # whisper
   whisper:
@@ -239,17 +238,19 @@ services:
     environment:
       - POLYASSISTANT_API_ROUTE_NAME=polyassistant
       - POLYASSISTANT_API_URL=http://polyassistant.api:8080/
-      - OLLAMA_ROUTE_NAME=ollama_api
+      - OLLAMA_ROUTE_NAME=ollama-api
       - OLLAMA_URL=http://ollama:11434/
       - OPEN_WEBUI_URL=http://open-webui:8080/
       - WHISPER_ROUTE_NAME=whisper
       - WHISPER_URL=http://whisper:9000/
-      - ZONOS_ROUTE_NAME=zonos
-      - ZONOS_URL=http://zonos:7861/ # api
-      - CHATTERBOX_ROUTE_NAME=chatterbox
-      - CHATTERBOX_URL=http://chatterbox:7861/ # api
+      - ZONOS_UI_ROUTE_NAME=zonos-ui
+      - ZONOS_UI_URL=http://zonos:7860/ # ui
+      - ZONOS_API_ROUTE_NAME=zonos-api
+      - ZONOS_API_URL=http://zonos:7861/ # api
       - CHATTERBOX_UI_ROUTE_NAME=chatterbox-ui
       - CHATTERBOX_UI_URL=http://chatterbox:7860/ # ui
+      - CHATTERBOX_API_ROUTE_NAME=chatterbox-api
+      - CHATTERBOX_API_URL=http://chatterbox:7861/ # api
       - SEARXNG_ROUTE_NAME=searxng
       - SEARXNG_URL=http://searxng:8080/
       - CRAWL4AI_ROUTE_NAME=crawl4ai

@@ -76,25 +76,8 @@ server {
     client_max_body_size 0;
   }
   # zonos
-  location /${ZONOS_ROUTE_NAME}/ {
-    proxy_pass ${ZONOS_URL};
-    proxy_set_header Host $host;
-    proxy_set_header X-Real-IP $remote_addr;
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_set_header X-Forwarded-Proto $scheme;
-    proxy_http_version 1.1;
-    proxy_set_header Connection "";
-    proxy_buffering off;
-    proxy_request_buffering off;
-    proxy_connect_timeout 1800;
-    proxy_send_timeout 1800;
-    proxy_read_timeout 1800;
-    rewrite ^/${ZONOS_ROUTE_NAME}/(.*)$ /$1 break;
-    client_max_body_size 0;
-  }
-  # chatterbox
-  location /${CHATTERBOX_ROUTE_NAME}/ {
-    proxy_pass ${CHATTERBOX_URL};
+  location /${ZONOS_API_ROUTE_NAME}/ {
+    proxy_pass ${ZONOS_API_URL};
     proxy_buffering off;
     proxy_redirect off;
     proxy_http_version 1.1;
@@ -104,8 +87,22 @@ server {
     proxy_set_header X-Forwarded-Host $host;
     proxy_set_header X-Forwarded-Proto $scheme;
     client_max_body_size 0;
-    rewrite ^/${CHATTERBOX_ROUTE_NAME}/(.*)$ /$1 break;
+    rewrite ^/${ZONOS_API_ROUTE_NAME}/(.*)$ /$1 break;
   }
+  location /${ZONOS_UI_ROUTE_NAME}/ {
+    proxy_pass ${ZONOS_UI_URL};
+    proxy_buffering off;
+    proxy_redirect off;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-Host $host;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    client_max_body_size 0;
+    rewrite ^/${ZONOS_UI_ROUTE_NAME}/(.*)$ /$1 break;
+  }
+  # chatterbox
   location /${CHATTERBOX_UI_ROUTE_NAME}/ {
     proxy_pass ${CHATTERBOX_UI_URL};
     proxy_buffering off;
@@ -117,7 +114,20 @@ server {
     proxy_set_header X-Forwarded-Host $host;
     proxy_set_header X-Forwarded-Proto $scheme;
     client_max_body_size 0;
-    rewrite ^/${CHATTERBOX_ROUTE_NAME}/(.*)$ /$1 break;
+    rewrite ^/${CHATTERBOX_UI_ROUTE_NAME}/(.*)$ /$1 break;
+  }
+  location /${CHATTERBOX_API_ROUTE_NAME}/ {
+    proxy_pass ${CHATTERBOX_API_URL};
+    proxy_buffering off;
+    proxy_redirect off;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-Host $host;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    client_max_body_size 0;
+    rewrite ^/${CHATTERBOX_API_ROUTE_NAME}/(.*)$ /$1 break;
   }
   # searxng
   location /${SEARXNG_ROUTE_NAME}/ {

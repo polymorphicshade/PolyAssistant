@@ -95,19 +95,29 @@ server {
   # chatterbox
   location /${CHATTERBOX_ROUTE_NAME}/ {
     proxy_pass ${CHATTERBOX_URL};
-    proxy_set_header Host $host;
-    proxy_set_header X-Real-IP $remote_addr;
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_set_header X-Forwarded-Proto $scheme;
-    proxy_http_version 1.1;
-    proxy_set_header Connection "";
     proxy_buffering off;
-    proxy_request_buffering off;
-    proxy_connect_timeout 1800;
-    proxy_send_timeout 1800;
-    proxy_read_timeout 1800;
-    rewrite ^/${CHATTERBOX_ROUTE_NAME}/(.*)$ /$1 break;
+    proxy_redirect off;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-Host $host;
+    proxy_set_header X-Forwarded-Proto $scheme;
     client_max_body_size 0;
+    rewrite ^/${CHATTERBOX_ROUTE_NAME}/(.*)$ /$1 break;
+  }
+  location /${CHATTERBOX_UI_ROUTE_NAME}/ {
+    proxy_pass ${CHATTERBOX_UI_URL};
+    proxy_buffering off;
+    proxy_redirect off;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-Host $host;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    client_max_body_size 0;
+    rewrite ^/${CHATTERBOX_ROUTE_NAME}/(.*)$ /$1 break;
   }
   # searxng
   location /${SEARXNG_ROUTE_NAME}/ {

@@ -60,6 +60,44 @@ services:
               count: 1
               capabilities: [gpu]
 
+  # Stable Diffusion Web UI
+  stable-diffusion-webui:
+    container_name: "stable-diffusion-webui"
+    restart: unless-stopped
+    build:
+      context: .repos/PolyAssistant.StableDiffusionWebUi/.
+      dockerfile: Dockerfile
+    networks:
+      - private
+      - public # needed for downloading models (remove/comment-out later if needed)
+    volumes:
+      - ${DATA_DIRECTORY}/stable-diffusion-webui/outputs:/app/stable-diffusion-webui/outputs
+      - ${DATA_DIRECTORY}/stable-diffusion-webui/models:/app/stable-diffusion-webui/models
+      - ${DATA_DIRECTORY}/stable-diffusion-webui/extensions:/app/stable-diffusion-webui/extensions
+      - ${DATA_DIRECTORY}/stable-diffusion-webui/repositories:/app/stable-diffusion-webui/repositories
+      - ${DATA_DIRECTORY}/stable-diffusion-webui/cache:/root/.cache
+    command: >
+      python launch.py
+      --allow-code
+      --listen
+      --gradio-auth user:pass
+      --api
+      --administrator
+      --disable-tls-verify
+      --xformers
+      --reinstall-xformers
+      --theme=dark
+      --no-prompt-history
+      --enable-insecure-extension-access
+      --subpath=stable-diffusion-webui
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu, compute, utility]
+
   # Zonos
   zonos:
     container_name: "zonos"
@@ -202,6 +240,7 @@ services:
       - SearXng__Url=http://searxng:8080
       - Crawl4Ai__Url=http://crawl4ai:11235
       - FramePack-Studio__Url=http://framepack-studio:7860
+      - Stable-Diffusion-WebUi__Url=http://stable-diffusion-webui:7860
       - Caching__DatabaseType=MySql
       - Caching__ConnectionString=Server=mariadb;Port=3306;Database=polyassistant.api;Uid=root;Pwd=pass123;
     volumes:
@@ -224,6 +263,8 @@ services:
       framepack-studio:
         condition: service_started
       open-webui:
+        condition: service_started
+      stable-diffusion-webui:
         condition: service_started
 
   # Nginx Proxy for HTTPS
@@ -257,6 +298,8 @@ services:
       - CRAWL4AI_URL=http://crawl4ai:11235/
       - FRAMEPACK_ROUTE_NAME=framepack-studio
       - FRAMEPACK_URL=http://framepack-studio:7860/
+      - STABLE_DIFFUSION_WEBUI_ROUTE_NAME=stable-diffusion-webui
+      - STABLE_DIFFUSION_WEBUI_URL=http://stable-diffusion-webui:7860/
     ports:
       - 443:443
     volumes:
@@ -280,6 +323,8 @@ services:
       framepack-studio:
         condition: service_started
       open-webui:
+        condition: service_started
+      stable-diffusion-webui:
         condition: service_started
 
 networks:

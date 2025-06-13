@@ -64,6 +64,7 @@ mkdir .repos
 git clone https://github.com/polymorphicshade/PolyAssistant.Zonos.git .repos/PolyAssistant.Zonos
 git clone https://github.com/polymorphicshade/PolyAssistant.Chatterbox.git .repos/PolyAssistant.Chatterbox
 git clone https://github.com/polymorphicshade/PolyAssistant.FramePack-Studio.git .repos/PolyAssistant.FramePack-Studio
+git clone https://github.com/polymorphicshade/PolyAssistant.StableDiffusionWebUi.git .repos/PolyAssistant.StableDiffusionWebUi
 
 # make a directory for PolyAssistant data
 mkdir .data

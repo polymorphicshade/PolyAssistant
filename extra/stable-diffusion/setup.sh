@@ -30,14 +30,16 @@ git clone https://github.com/AUTOMATIC1111/stable-diffusion-webui-rembg
 git clone https://github.com/pkuliyi2015/multidiffusion-upscaler-for-automatic1111
 git clone https://github.com/continue-revolution/sd-webui-animatediff
 git clone https://github.com/Bing-su/adetailer
-git clone https://github.com/Gourieff/sd-webui-reactor-sfw
-git clone https://github.com/glucauze/sd-webui-faceswaplab
 git clone https://github.com/continue-revolution/sd-webui-segment-anything
 git clone https://github.com/alemelis/sd-webui-ar
-git clone https://github.com/Bing-su/adetailer
-git clone https://github.com/hako-mikan/sd-webui-regional-prompter
 git clone https://github.com/huchenlei/sd-webui-openpose-editor
-# not working: git clone https://github.com/Iyashinouta/sd-model-downloader
+git clone https://github.com/lobehub/sd-webui-lobe-theme
+
+# needs other stuff to work:
+# git clone https://github.com/hako-mikan/sd-webui-regional-prompter
+# git clone https://github.com/Iyashinouta/sd-model-downloader
+# git clone https://github.com/glucauze/sd-webui-faceswaplab
+# git clone https://github.com/Gourieff/sd-webui-reactor-sfw
 cd ..
 
 # install ControlNet models
@@ -84,8 +86,5 @@ Group=1000
 [Install]
 WantedBy=default.target" > /etc/systemd/system/stable-diffusion-webui.service
 
-# TODO: configure webui-user.sh
-#
-# ex) 'export COMMANDLINE_ARGS="--allow-code --listen --port 9999 --gradio-auth user:pass --api --administrator --disable-tls-verify --xformers --reinstall-xformers --theme=dark --no-prompt-history --enable-insecure-extension-access"' > ...?
-# ex) copy over pre-configured file from repo
-#
+systemctl enable stable-diffusion-webui.service
+systemctl start stable-diffusion-webui.service

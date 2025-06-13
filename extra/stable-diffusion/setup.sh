@@ -18,6 +18,7 @@ apt-get update -y
 apt-get install -y libgl1 git libgoogle-perftools4 libtcmalloc-minimal4 python3.10-venv
 git clone https://github.com/AUTOMATIC1111/stable-diffusion-webui /home/user/stable-diffusion-webui
 cp webui-user.sh /home/user/stable-diffusion-webui/webui-user.sh
+sudo chown -R 1000:1000 /home/user/stable-diffusion-webui
 cd /home/user/stable-diffusion-webui
 sudo -u \#1000 python3.10 -m venv venv
 
@@ -66,7 +67,7 @@ wget https://huggingface.co/TencentARC/T2I-Adapter/resolve/main/models/t2iadapte
 wget https://huggingface.co/TencentARC/T2I-Adapter/resolve/main/models/t2iadapter_style_sd14v1.pth
 wget https://huggingface.co/TencentARC/T2I-Adapter/resolve/main/models/t2iadapter_zoedepth_sd15v1.pth
 
-# give ownership to 1000 (matches the service permissions below)
+# do this again for the new files
 sudo chown -R 1000:1000 /home/user/stable-diffusion-webui
 
 # install stable-diffusion-webui service

@@ -241,7 +241,7 @@ services:
     environment:
       - Caching__ConnectionString=Server=mariadb;Port=3306;Database=polyassistant.api;Uid=root;Pwd=pass123;
       - Caching__DatabaseType=MySql
-      - Chatterbox__Url=http://chatterbox:7861 # api
+      - Chatterbox__Url=http://chatterbox:7861
       - Crawl4Ai__Url=http://crawl4ai:11235
       - FramePack-Studio__Url=http://framepack-studio:7860
       - Ollama__DefaultModel=llama3.2:latest
@@ -250,7 +250,7 @@ services:
       - SearXng__Url=http://searxng:8080
       - Stable-Diffusion-WebUi__Url=http://stable-diffusion-webui:7860
       - Whisper__Url=http://whisper:9000
-      - Zonos__Url=http://zonos:7861 # api
+      - Zonos__Url=http://zonos:7861
     volumes:
       - ${DATA_DIRECTORY}/uploads:/app/uploads
     networks:
@@ -288,9 +288,9 @@ services:
       - 443:443
     environment:
       - CHATTERBOX_API_ROUTE_NAME=chatterbox-api
-      - CHATTERBOX_API_URL=http://chatterbox:7861/ # api
+      - CHATTERBOX_API_URL=http://chatterbox:7861/
       - CHATTERBOX_UI_ROUTE_NAME=chatterbox-ui
-      - CHATTERBOX_UI_URL=http://chatterbox:7860/ # ui
+      - CHATTERBOX_UI_URL=http://chatterbox:7860/
       - CRAWL4AI_ROUTE_NAME=crawl4ai
       - CRAWL4AI_URL=http://crawl4ai:11235/
       - FRAMEPACK_ROUTE_NAME=framepack-studio
@@ -307,9 +307,9 @@ services:
       - WHISPER_ROUTE_NAME=whisper
       - WHISPER_URL=http://whisper:9000/
       - ZONOS_API_ROUTE_NAME=zonos-api
-      - ZONOS_API_URL=http://zonos:7861/ # api
+      - ZONOS_API_URL=http://zonos:7861/
       - ZONOS_UI_ROUTE_NAME=zonos-ui
-      - ZONOS_UI_URL=http://zonos:7860/ # ui
+      - ZONOS_UI_URL=http://zonos:7860/
     volumes:
       - ./config/nginx/nginx.conf.template:/etc/nginx/templates/nginx.conf.template
       - ./nginx/certs:/etc/nginx/certs:ro

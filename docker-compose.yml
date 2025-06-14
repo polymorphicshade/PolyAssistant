@@ -177,7 +177,7 @@ services:
     image: docker.io/searxng/searxng:latest
     container_name: "searxng"
     ports:
-      - ${HTTP_PORT_SEARXNG}:8080
+      - ${SEARXNG_PORT}:8080
     volumes:
       - ./config/searxng/settings.yml:/etc/searxng/settings.yml:rw
       - ${DATA_DIRECTORY}/searxng:/etc/searxng:rw
@@ -301,7 +301,7 @@ services:
       - OPEN_WEBUI_URL=http://open-webui:8080/
       - POLYASSISTANT_ROUTE_NAME=${POLYASSISTANT_ROUTE_NAME}
       - POLYASSISTANT_URL=http://polyassistant:8080/
-      - SEARXNG_ROUTE_NAME=${HTTPS_ROUTE_NAME_SEARXNG}
+      - SEARXNG_ROUTE_NAME=${SEARXNG_ROUTE_NAME}
       - SEARXNG_URL=http://searxng:8080/
       - STABLE_DIFFUSION_WEBUI_ROUTE_NAME=${STABLE_DIFFUSION_WEBUI_ROUTE_NAME}
       - STABLE_DIFFUSION_WEBUI_URL=http://stable-diffusion-webui:7860/

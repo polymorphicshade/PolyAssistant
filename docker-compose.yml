@@ -238,43 +238,43 @@ services:
     ports:
       - 19161:8080
     environment:
-      - Whisper__Url=http://whisper:9000
-      - Zonos__Url=http://zonos:7861 # api
+      - Caching__ConnectionString=Server=mariadb;Port=3306;Database=polyassistant.api;Uid=root;Pwd=pass123;
+      - Caching__DatabaseType=MySql
       - Chatterbox__Url=http://chatterbox:7861 # api
-      - Ollama__Url=http://ollama:11434
-      - Ollama__DefaultModel=llama3.2:latest
-      - Ollama__DefaultSystemMessage=You are a helpful assistant. Keep your responses brief.
-      - SearXng__Url=http://searxng:8080
       - Crawl4Ai__Url=http://crawl4ai:11235
       - FramePack-Studio__Url=http://framepack-studio:7860
+      - Ollama__DefaultModel=llama3.2:latest
+      - Ollama__DefaultSystemMessage=You are a helpful assistant. Keep your responses brief.
+      - Ollama__Url=http://ollama:11434
+      - SearXng__Url=http://searxng:8080
       - Stable-Diffusion-WebUi__Url=http://stable-diffusion-webui:7860
-      - Caching__DatabaseType=MySql
-      - Caching__ConnectionString=Server=mariadb;Port=3306;Database=polyassistant.api;Uid=root;Pwd=pass123;
+      - Whisper__Url=http://whisper:9000
+      - Zonos__Url=http://zonos:7861 # api
     volumes:
       - ${DATA_DIRECTORY}/uploads:/app/uploads
     networks:
       - private
       - public
     depends_on:
-      whisper:
-        condition: service_started
-      zonos:
-        condition: service_started
       chatterbox:
-        condition: service_started
-      ollama:
-        condition: service_started
-      searxng:
-        condition: service_started
-      mariadb:
         condition: service_started
       crawl4ai:
         condition: service_started
       framepack-studio:
         condition: service_started
+      mariadb:
+        condition: service_started
+      ollama:
+        condition: service_started
       open-webui:
         condition: service_started
+      searxng:
+        condition: service_started
       stable-diffusion-webui:
+        condition: service_started
+      whisper:
+        condition: service_started
+      zonos:
         condition: service_started
     user: 0:0
     restart: unless-stopped
@@ -286,29 +286,29 @@ services:
     ports:
       - 443:443
     environment:
-      - POLYASSISTANT_API_ROUTE_NAME=polyassistant
-      - POLYASSISTANT_API_URL=http://polyassistant.api:8080/
-      - OLLAMA_ROUTE_NAME=ollama-api
-      - OLLAMA_URL=http://ollama:11434/
-      - OPEN_WEBUI_URL=http://open-webui:8080/
-      - WHISPER_ROUTE_NAME=whisper
-      - WHISPER_URL=http://whisper:9000/
-      - ZONOS_UI_ROUTE_NAME=zonos-ui
-      - ZONOS_UI_URL=http://zonos:7860/ # ui
-      - ZONOS_API_ROUTE_NAME=zonos-api
-      - ZONOS_API_URL=http://zonos:7861/ # api
-      - CHATTERBOX_UI_ROUTE_NAME=chatterbox-ui
-      - CHATTERBOX_UI_URL=http://chatterbox:7860/ # ui
       - CHATTERBOX_API_ROUTE_NAME=chatterbox-api
       - CHATTERBOX_API_URL=http://chatterbox:7861/ # api
-      - SEARXNG_ROUTE_NAME=searxng
-      - SEARXNG_URL=http://searxng:8080/
+      - CHATTERBOX_UI_ROUTE_NAME=chatterbox-ui
+      - CHATTERBOX_UI_URL=http://chatterbox:7860/ # ui
       - CRAWL4AI_ROUTE_NAME=crawl4ai
       - CRAWL4AI_URL=http://crawl4ai:11235/
       - FRAMEPACK_ROUTE_NAME=framepack-studio
       - FRAMEPACK_URL=http://framepack-studio:7860/
+      - OLLAMA_ROUTE_NAME=ollama-api
+      - OLLAMA_URL=http://ollama:11434/
+      - OPEN_WEBUI_URL=http://open-webui:8080/
+      - POLYASSISTANT_API_ROUTE_NAME=polyassistant
+      - POLYASSISTANT_API_URL=http://polyassistant:8080/
+      - SEARXNG_ROUTE_NAME=searxng
+      - SEARXNG_URL=http://searxng:8080/
       - STABLE_DIFFUSION_WEBUI_ROUTE_NAME=stable-diffusion-webui
       - STABLE_DIFFUSION_WEBUI_URL=http://stable-diffusion-webui:7860/
+      - WHISPER_ROUTE_NAME=whisper
+      - WHISPER_URL=http://whisper:9000/
+      - ZONOS_API_ROUTE_NAME=zonos-api
+      - ZONOS_API_URL=http://zonos:7861/ # api
+      - ZONOS_UI_ROUTE_NAME=zonos-ui
+      - ZONOS_UI_URL=http://zonos:7860/ # ui
     volumes:
       - ./nginx/nginx.conf.template:/etc/nginx/templates/nginx.conf.template
       - ./nginx/certs:/etc/nginx/certs:ro
@@ -316,25 +316,25 @@ services:
       - private
       - public
     depends_on:
-      polyassistant.api:
-        condition: service_started
-      ollama:
-        condition: service_started
-      whisper:
-        condition: service_started
-      zonos:
-        condition: service_started
       chatterbox:
-        condition: service_started
-      searxng:
         condition: service_started
       crawl4ai:
         condition: service_started
       framepack-studio:
         condition: service_started
+      ollama:
+        condition: service_started
       open-webui:
         condition: service_started
+      polyassistant.api:
+        condition: service_started
+      searxng:
+        condition: service_started
       stable-diffusion-webui:
+        condition: service_started
+      whisper:
+        condition: service_started
+      zonos:
         condition: service_started
     user: 0:0
     restart: unless-stopped

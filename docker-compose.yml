@@ -229,12 +229,12 @@ services:
     restart: unless-stopped
     runtime: nvidia
 
-  # PolyAssistant API
-  polyassistant.api:
+  # PolyAssistant
+  polyassistant:
     build:
       context: ./src
       dockerfile: PolyAssistant.Api/Dockerfile
-    container_name: "polyassistant.api"
+    container_name: "polyassistant"
     ports:
       - 19161:8080
     environment:
@@ -326,7 +326,7 @@ services:
         condition: service_started
       open-webui:
         condition: service_started
-      polyassistant.api:
+      polyassistant:
         condition: service_started
       searxng:
         condition: service_started

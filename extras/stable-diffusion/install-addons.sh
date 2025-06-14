@@ -1,30 +1,13 @@
 #!/bin/bash
 
-#
-# TODO: remove this script when SD can be run in a container
-#
-
 # require sudo
 if [ "$(id -u)" -ne 0 ]; then
     exec sudo "$0" "$@"
     exit 1
 fi
 
-# setup stable-diffusion-webui
-# NOTE: the directory path CANNOT have a '.' in it (i.e. BAD -> /path/to/.some/folder/stable-diffusion-webui)
-apt install software-properties-common
-add-apt-repository --yes ppa:deadsnakes/ppa
-apt-get update -y
-apt-get install -y libgl1 git libgoogle-perftools4 libtcmalloc-minimal4 python3.10-venv
-git clone https://github.com/AUTOMATIC1111/stable-diffusion-webui /home/user/stable-diffusion-webui
-cp webui-user.sh /home/user/stable-diffusion-webui/webui-user.sh
-sudo chown -R 1000:1000 /home/user/stable-diffusion-webui
-cd /home/user/stable-diffusion-webui
-sudo -u \#1000 python3.10 -m venv venv
-
 # install some extensions
-cd extensions
-git clone https://github.com/papuSpartan/stable-diffusion-webui-auto-tls-https
+cd ../../.data/stable-diffusion-webui/extensions
 git clone https://github.com/huchenlei/sd-webui-api-payload-display
 git clone https://github.com/AUTOMATIC1111/stable-diffusion-webui-rembg
 git clone https://github.com/pkuliyi2015/multidiffusion-upscaler-for-automatic1111
@@ -33,16 +16,21 @@ git clone https://github.com/Bing-su/adetailer
 git clone https://github.com/continue-revolution/sd-webui-segment-anything
 git clone https://github.com/alemelis/sd-webui-ar
 git clone https://github.com/huchenlei/sd-webui-openpose-editor
-git clone https://github.com/lobehub/sd-webui-lobe-theme
+
+# not needed if using nginx
+# git clone https://github.com/papuSpartan/stable-diffusion-webui-auto-tls-https
+
+# TODO: figure out how to get this to work behind nginx
+# git clone https://github.com/lobehub/sd-webui-lobe-theme
 
 # needs other stuff to work:
 # git clone https://github.com/hako-mikan/sd-webui-regional-prompter
 # git clone https://github.com/Iyashinouta/sd-model-downloader
 # git clone https://github.com/glucauze/sd-webui-faceswaplab
 # git clone https://github.com/Gourieff/sd-webui-reactor-sfw
-cd ..
 
 # install ControlNet models
+cd ..
 mkdir -p models/ControlNet
 cd models/ControlNet
 wget https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11e_sd15_ip2p.pth
@@ -68,23 +56,3 @@ wget https://huggingface.co/TencentARC/T2I-Adapter/resolve/main/models/t2iadapte
 wget https://huggingface.co/TencentARC/T2I-Adapter/resolve/main/models/t2iadapter_sketch_sd15v2.pth
 wget https://huggingface.co/TencentARC/T2I-Adapter/resolve/main/models/t2iadapter_style_sd14v1.pth
 wget https://huggingface.co/TencentARC/T2I-Adapter/resolve/main/models/t2iadapter_zoedepth_sd15v1.pth
-
-# do this again for the new files
-sudo chown -R 1000:1000 /home/user/stable-diffusion-webui
-
-# install stable-diffusion-webui service
-# NOTE: must NOT run as root
-echo "[Unit]
-Description=Stable Diffusion WebUI
-After=network.target
-
-[Service]
-ExecStart=/home/user/stable-diffusion-webui/webui.sh
-User=1000
-Group=1000
-
-[Install]
-WantedBy=default.target" > /etc/systemd/system/stable-diffusion-webui.service
-
-systemctl enable stable-diffusion-webui.service
-systemctl start stable-diffusion-webui.service

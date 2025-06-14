@@ -39,7 +39,7 @@ services:
     container_name: "open-webui"
     environment:
       - OLLAMA_BASE_URL=http://ollama:11434
-      - DEFAULT_MODELS=llama3.2:instruct
+      - DEFAULT_MODELS=${OLLAMA_DEFAULT_MODEL}
       - WEBUI_NAME=AI Chat
     volumes:
       - ${DATA_DIRECTORY}/open-webui:/app/backend/data
@@ -245,7 +245,7 @@ services:
       - Chatterbox__Url=http://chatterbox:7861
       - Crawl4Ai__Url=http://crawl4ai:11235
       - FramePack-Studio__Url=http://framepack-studio:7860
-      - Ollama__DefaultModel=llama3.2:latest
+      - Ollama__DefaultModel=${OLLAMA_DEFAULT_MODEL}
       - Ollama__DefaultSystemMessage=You are a helpful assistant. Keep your responses brief.
       - Ollama__Url=http://ollama:11434
       - SearXng__Url=http://searxng:8080

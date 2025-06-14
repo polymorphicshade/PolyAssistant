@@ -56,7 +56,7 @@ DEBIAN_FRONTEND=noninteractive apt upgrade -y
 sed -i "s/\$nrconf{kernelhints} = -1;/#\$nrconf{kernelhints} = -1;/g" /etc/needrestart/needrestart.conf
 
 # generate certs for Nginx
-mkdir nginx/certs
+mkdir config/nginx/certs
 openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout nginx/certs/key.key -out nginx/certs/cert.crt -subj "/C=US/ST=GenericState/L=GenericCity/O=GenericOrg/OU=GenericUnit/CN=generichost.com/emailAddress=generic@example.com"
 
 # clone other repos

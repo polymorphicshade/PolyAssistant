@@ -177,7 +177,7 @@ services:
     ports:
       - 17511:8080
     volumes:
-      - ./searxng/settings.yml:/etc/searxng/settings.yml:rw
+      - ./config/searxng/settings.yml:/etc/searxng/settings.yml:rw
       - ${DATA_DIRECTORY}/searxng:/etc/searxng:rw
     networks:
       - public
@@ -310,7 +310,7 @@ services:
       - ZONOS_UI_ROUTE_NAME=zonos-ui
       - ZONOS_UI_URL=http://zonos:7860/ # ui
     volumes:
-      - ./nginx/nginx.conf.template:/etc/nginx/templates/nginx.conf.template
+      - ./config/nginx/nginx.conf.template:/etc/nginx/templates/nginx.conf.template
       - ./nginx/certs:/etc/nginx/certs:ro
     networks:
       - private

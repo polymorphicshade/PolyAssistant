@@ -6,29 +6,109 @@ if [ "$(id -u)" -ne 0 ]; then
     exit 1
 fi
 
-host_ip=$(hostname -I | awk '{print $1}')
-
-nginx_container_id=$(docker ps -f "ancestor=nginx" --format "{{.ID}}" | head -n 1)
-
-echo
-echo "HTTP:"
 echo
 
-docker ps --format "{{.Names}}" | sort | while read container_name; do
-    exposed_port=$(docker port "$container_name" | cut -d ':' -f 2)
+#
+# === get IP ===
+#
 
-    if [[ -z "$exposed_port" ]]; then
+HOST_IP_OVERRIDE=""
+CURRENT_HOST_IP=""
+if [ -z "$HOST_IP_OVERRIDE" ]; then
+    DETECTED_HOST_IP=$(hostname -I | awk '{print $1}')
+    if [ -z "$DETECTED_HOST_IP" ]; then
+        echo "Warning: Could not automatically determine host IP address using 'hostname -I'."
+        echo "Please ensure 'hostname -I' works or set HOST_IP_OVERRIDE manually in the script."
+        echo "Defaulting to 'localhost' for display purposes, but this might not be accurate for external access."
+        CURRENT_HOST_IP="localhost"
+    else
+        CURRENT_HOST_IP="$DETECTED_HOST_IP"
+    fi
+else
+    CURRENT_HOST_IP="$HOST_IP_OVERRIDE"
+fi
+
+CONTAINER_IDS=$(docker ps -q)
+
+if [ -z "$CONTAINER_IDS" ]; then
+    echo "No running Docker containers found."
+    exit 0
+fi
+
+#
+# === show HTTP endpoints ===
+#
+
+TEMP_ENDPOINTS_FILE=$(mktemp)
+
+for ID in $CONTAINER_IDS; do
+    CONTAINER_INFO=$(docker inspect --format '{"Name":"{{.Name}}", "Ports":{{json .NetworkSettings.Ports}}}' "$ID")
+    CONTAINER_NAME=$(echo "$CONTAINER_INFO" | jq -r '.Name | ltrimstr("/")')
+    PORTS_JSON=$(echo "$CONTAINER_INFO" | jq -r '.Ports')
+
+    if [ "$PORTS_JSON" == "null" ] || [ -z "$PORTS_JSON" ]; then
         continue
     fi
-
-    echo "http://$host_ip:$exposed_port ($container_name)"
+    echo "$PORTS_JSON" | jq -r 'to_entries[] | select(.value != null) | .value[0].HostIp + ":" + .value[0].HostPort' | while read -r HOST_MAPPING; do
+        HOST_PORT=$(echo "$HOST_MAPPING" | cut -d':' -f2)
+        ENDPOINT="http://${CURRENT_HOST_IP}:${HOST_PORT} (${CONTAINER_NAME})"
+        echo "$ENDPOINT" >> "$TEMP_ENDPOINTS_FILE"
+    done
 done
 
-if [ -n "$nginx_container_id" ]; then
-  echo
-  echo "HTTPS:"
-  echo
-  docker exec "$nginx_container_id" nginx -T 2>&1 | grep -oP 'location\s+\K\/[^\{]+' | sed "s/^/https:\/\/$host_ip/"
+if [ -s "$TEMP_ENDPOINTS_FILE" ]; then
+    sort -u "$TEMP_ENDPOINTS_FILE"
+else
+    echo "No HTTP endpoints found based on exposed host ports for running containers."
 fi
+
+rm -f "$TEMP_ENDPOINTS_FILE"
+
+#
+# === show HTTPS endpoints ===
+#
+
+echo
+
+NGINX_CONTAINER_NAME="nginx"
+
+if ! docker ps --format "{{.Names}}" | grep -q "^${NGINX_CONTAINER_NAME}$"; then
+    echo "Error: Nginx container '$NGINX_CONTAINER_NAME' not found or not running."
+    echo "Please ensure the container is named 'nginx' and it is currently running."
+    exit 1
+fi
+
+NGINX_CONFIG_CONTENT=$(docker exec "$NGINX_CONTAINER_NAME" sh -c "
+    find /etc/nginx/conf.d/ /etc/nginx/sites-enabled/ -maxdepth 1 -type f -name '*.conf' 2>/dev/null | xargs -r cat 2>/dev/null || cat /etc/nginx/nginx.conf 2>/dev/null
+")
+
+if [ -z "$NGINX_CONFIG_CONTENT" ]; then
+    echo "Error: Could not retrieve Nginx configuration from container '$NGINX_CONTAINER_NAME'."
+    echo "Ensure Nginx is installed and configuration files exist inside the container."
+    exit 1
+fi
+
+LOCATION_PATHS=$(echo "$NGINX_CONFIG_CONTENT" | \
+    grep -oE 'location\s+(\/[^ {;]+)' | \
+    awk '{print $2}' | \
+    grep -E '^\/')
+
+if [ -z "$LOCATION_PATHS" ]; then
+    echo "Warning: No exposed paths (location directives starting with '/') found in the Nginx configuration."
+    echo "Please verify your Nginx configuration inside the container."
+    exit 0
+fi
+
+echo "$LOCATION_PATHS" | while IFS= read -r path; do
+    if [ "$path" == "/" ]; then
+        echo "https://${CURRENT_HOST_IP}/"
+    else
+        if [[ "$path" != */ ]]; then
+            echo "https://${CURRENT_HOST_IP}${path}/"
+        else
+            echo "https://${CURRENT_HOST_IP}${path}"
+        fi
+    fi
+done
 
 echo

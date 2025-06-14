@@ -17,6 +17,9 @@ if [ "$1" == "vm" ]; then
     systemctl enable qemu-guest-agent
 fi
 
+# TODO: should we do this before installing Nvidia stuff?
+# apt autoremove nvidia* --purge -y
+
 # install Nvidia stuff
 wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/cuda-ubuntu2404.pin
 sudo mv cuda-ubuntu2404.pin /etc/apt/preferences.d/cuda-repository-pin-600
@@ -26,10 +29,6 @@ sudo cp /var/cuda-repo-ubuntu2404-12-9-local/cuda-*-keyring.gpg /usr/share/keyri
 sudo apt-get update
 sudo apt-get -y install cuda-toolkit-12-9
 sudo apt-get install -y nvidia-open # OR cuda-drivers (proprietary)
-
-# apt autoremove nvidia* --purge -y
-# apt install -y ubuntu-drivers-common
-# ubuntu-drivers autoinstall
 
 # install Docker stuff
 apt update -y

@@ -13,14 +13,14 @@
     ```bash
     ./setup.sh
     ```
-    > [!NOTE]  
-    > Running `setup.sh` will also update/upgrade your Ubuntu Server OS.
+> [!NOTE]  
+> Running `setup.sh` will also update/upgrade your Ubuntu Server OS.
 3. Wait for the machine to reboot, then in the `PolyAssistant` repository, run:
     ```bash
     ./start.sh
     ```
-    > [!WARNING]
-    > Running `start.sh` for the first time might take several (>30) mintues because lots of things need to be downloaded and installed.
+> [!WARNING]
+> Running `start.sh` for the first time might take several (>30) mintues because lots of things need to be downloaded and installed.
 
 # 💻 Proxmox
 If you are running an Ubuntu Server guest in a Proxmox, these commands might help:

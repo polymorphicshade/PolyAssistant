@@ -18,6 +18,9 @@
 > [!NOTE]  
 > This script will also update/upgrade your Ubuntu Server OS.
 
+> [!WARNING]
+> Running `start.sh` for the first time might take several (>30) mintues because lots of things need to be downloaded and installed.
+
 # 💻 Proxmox
 If you are running an Ubuntu Server guest in a Proxmox, these commands might help:
 

@@ -1,5 +1,7 @@
 # 📃 Requirements
 - Ubuntu Server (at least 24.04.01)
+- At least any modern mid-range CPU
+- At least 300 GB of free storage (1 TB recommended for scalability with new models and features)
 - A GPU with CUDA cores and at least 8 GB of VRAM (tested with an RTX3090)
 
 # 🚀 Getting Started

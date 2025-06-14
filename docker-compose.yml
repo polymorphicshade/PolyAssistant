@@ -297,8 +297,8 @@ services:
       - OLLAMA_ROUTE_NAME=ollama-api
       - OLLAMA_URL=http://ollama:11434/
       - OPEN_WEBUI_URL=http://open-webui:8080/
-      - POLYASSISTANT_API_ROUTE_NAME=polyassistant
-      - POLYASSISTANT_API_URL=http://polyassistant:8080/
+      - POLYASSISTANT_ROUTE_NAME=polyassistant
+      - POLYASSISTANT_URL=http://polyassistant:8080/
       - SEARXNG_ROUTE_NAME=searxng
       - SEARXNG_URL=http://searxng:8080/
       - STABLE_DIFFUSION_WEBUI_ROUTE_NAME=stable-diffusion-webui

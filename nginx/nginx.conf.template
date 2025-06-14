@@ -24,14 +24,14 @@ server {
     proxy_send_timeout 60s;
     client_max_body_size 0;
   }
-  # polyassistant.api
-  location /${POLYASSISTANT_API_ROUTE_NAME}/ {
-    proxy_pass ${POLYASSISTANT_API_URL};
+  # polyassistant
+  location /${POLYASSISTANT_ROUTE_NAME}/ {
+    proxy_pass ${POLYASSISTANT_URL};
     proxy_set_header Host $host;
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header X-Forwarded-Proto $scheme;
-    proxy_set_header X-Forwarded-Prefix ${POLYASSISTANT_API_ROUTE_NAME};
+    proxy_set_header X-Forwarded-Prefix ${POLYASSISTANT_ROUTE_NAME};
     proxy_http_version 1.1;
     proxy_set_header Connection "";
     proxy_buffering off;

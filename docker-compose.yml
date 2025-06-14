@@ -8,6 +8,7 @@ services:
       - WATCHTOWER_CLEANUP=true
     networks:
       - private
+      - public
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     restart: unless-stopped
@@ -180,8 +181,8 @@ services:
       - ./config/searxng/settings.yml:/etc/searxng/settings.yml:rw
       - ${DATA_DIRECTORY}/searxng:/etc/searxng:rw
     networks:
-      - public
       - private
+      - public
     cap_add:
       - CHOWN
       - SETGID
@@ -201,8 +202,8 @@ services:
     ports:
       - 11235:11235 # http://<ip>:11235/playground/
     networks:
-      - public
       - private
+      - public
     restart: unless-stopped
 
   # FramePack-Studio

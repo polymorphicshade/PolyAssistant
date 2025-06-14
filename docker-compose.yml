@@ -18,7 +18,7 @@ services:
     image: ollama/ollama
     container_name: "ollama"
     ports:
-      - 11434:11434
+      - ${OLLAMA_PORT}:11434
     volumes:
       - ${DATA_DIRECTORY}/ollama:/root/.ollama
     networks:
@@ -64,7 +64,7 @@ services:
       dockerfile: Dockerfile
     container_name: "stable-diffusion-webui"
     ports:
-      - 17341:7860
+      - ${STABLE_DIFFUSION_WEBUI_PORT}:7860
     volumes:
       - ${DATA_DIRECTORY}/stable-diffusion-webui/outputs:/app/stable-diffusion-webui/outputs
       - ${DATA_DIRECTORY}/stable-diffusion-webui/models:/app/stable-diffusion-webui/models
@@ -104,7 +104,7 @@ services:
       dockerfile: Dockerfile
     container_name: "zonos"
     ports:
-      - 16460:7860
+      - ${ZONOS_PORT}:7860
     environment:
       - NVIDIA_VISIBLE_DEVICES=0
       - GRADIO_SHARE=False
@@ -128,8 +128,8 @@ services:
       dockerfile: Dockerfile
     container_name: "chatterbox"
     ports:
-      - 16451:7860
-      - 16452:7861
+      - ${CHATTERBOX_UI_PORT}:7860
+      - ${CHATTERBOX_API_PORT}:7861
     environment:
       - NVIDIA_VISIBLE_DEVICES=0
       - GRADIO_SHARE=False
@@ -146,7 +146,7 @@ services:
     image: onerahmet/openai-whisper-asr-webservice:latest-gpu
     container_name: "whisper"
     ports:
-      - 9000:9000
+      - ${WHISPER_PORT}:9000
     environment:
       - ASR_ENGINE=openai_whisper
       - ASR_MODEL=base
@@ -176,7 +176,7 @@ services:
     image: docker.io/searxng/searxng:latest
     container_name: "searxng"
     ports:
-      - 17511:8080
+      - ${SEARXNG_PORT}:8080
     volumes:
       - ./config/searxng/settings.yml:/etc/searxng/settings.yml:rw
       - ${DATA_DIRECTORY}/searxng:/etc/searxng:rw
@@ -200,7 +200,7 @@ services:
     image: unclecode/crawl4ai:latest
     container_name: "crawl4ai"
     ports:
-      - 11235:11235 # http://<ip>:11235/playground/
+      - ${CRAWL4AI_PORT}:11235 # http://<ip>:11235/playground/
     networks:
       - private
       - public
@@ -213,7 +213,7 @@ services:
       dockerfile: Dockerfile
     container_name: "framepack-studio"
     ports:
-      - 10559:7860
+      - ${FRAMEPACK_STUDIO_PORT}:7860
     environment:
       - GRADIO_ROOT_PATH=/framepack-studio
       - NVIDIA_VISIBLE_DEVICES=0
@@ -237,7 +237,7 @@ services:
       dockerfile: PolyAssistant.Api/Dockerfile
     container_name: "polyassistant"
     ports:
-      - 19161:8080
+      - ${POLYASSISTANT_PORT}:8080
     environment:
       - Caching__ConnectionString=Server=mariadb;Port=3306;Database=polyassistant.api;Uid=root;Pwd=pass123;
       - Caching__DatabaseType=MySql

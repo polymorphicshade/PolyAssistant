@@ -24,4 +24,4 @@ docker compose pull
 docker compose "$@" up -d --no-deps --build
 
 # print the containers and their access points
-./info.sh
+./urls.sh

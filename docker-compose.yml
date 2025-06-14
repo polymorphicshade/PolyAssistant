@@ -230,11 +230,11 @@ services:
     runtime: nvidia
 
   # PolyAssistant API
-  polyassistant.api:
+  polyassistant-api:
     build:
       context: ./src
       dockerfile: PolyAssistant.Api/Dockerfile
-    container_name: "polyassistant.api"
+    container_name: "polyassistant-api"
     ports:
       - 19161:8080
     environment:
@@ -249,7 +249,7 @@ services:
       - FramePack-Studio__Url=http://framepack-studio:7860
       - Stable-Diffusion-WebUi__Url=http://stable-diffusion-webui:7860
       - Caching__DatabaseType=MySql
-      - Caching__ConnectionString=Server=mariadb;Port=3306;Database=polyassistant.api;Uid=root;Pwd=pass123;
+      - Caching__ConnectionString=Server=mariadb;Port=3306;Database=polyassistant-api;Uid=root;Pwd=pass123;
     volumes:
       - ${DATA_DIRECTORY}/uploads:/app/uploads
     networks:
@@ -286,8 +286,8 @@ services:
     ports:
       - 443:443
     environment:
-      - POLYASSISTANT_API_ROUTE_NAME=polyassistant
-      - POLYASSISTANT_API_URL=http://polyassistant.api:8080/
+      - POLYASSISTANT_API_ROUTE_NAME=polyassistant-api
+      - POLYASSISTANT_API_URL=http://polyassistant-api:8080/
       - OLLAMA_ROUTE_NAME=ollama-api
       - OLLAMA_URL=http://ollama:11434/
       - OPEN_WEBUI_URL=http://open-webui:8080/
@@ -316,7 +316,7 @@ services:
       - private
       - public
     depends_on:
-      polyassistant.api:
+      polyassistant-api:
         condition: service_started
       ollama:
         condition: service_started

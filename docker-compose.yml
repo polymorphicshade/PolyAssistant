@@ -104,7 +104,8 @@ services:
       dockerfile: Dockerfile
     container_name: "zonos"
     ports:
-      - ${ZONOS_PORT}:7860
+      - ${ZONOS_UI_PORT}:7860
+      - ${ZONOS_API_PORT}:7861
     environment:
       - NVIDIA_VISIBLE_DEVICES=0
       - GRADIO_SHARE=False
@@ -176,7 +177,7 @@ services:
     image: docker.io/searxng/searxng:latest
     container_name: "searxng"
     ports:
-      - ${SEARXNG_PORT}:8080
+      - ${HTTP_PORT_SEARXNG}:8080
     volumes:
       - ./config/searxng/settings.yml:/etc/searxng/settings.yml:rw
       - ${DATA_DIRECTORY}/searxng:/etc/searxng:rw
@@ -287,28 +288,28 @@ services:
     ports:
       - 443:443
     environment:
-      - CHATTERBOX_API_ROUTE_NAME=chatterbox-api
+      - CHATTERBOX_API_ROUTE_NAME=${CHATTERBOX_API_ROUTE_NAME}
       - CHATTERBOX_API_URL=http://chatterbox:7861/
-      - CHATTERBOX_UI_ROUTE_NAME=chatterbox-ui
+      - CHATTERBOX_UI_ROUTE_NAME=${CHATTERBOX_UI_ROUTE_NAME}
       - CHATTERBOX_UI_URL=http://chatterbox:7860/
-      - CRAWL4AI_ROUTE_NAME=crawl4ai
+      - CRAWL4AI_ROUTE_NAME=${CRAWL4AI_ROUTE_NAME}
       - CRAWL4AI_URL=http://crawl4ai:11235/
-      - FRAMEPACK_ROUTE_NAME=framepack-studio
+      - FRAMEPACK_ROUTE_NAME=${FRAMEPACK_STUDIO_ROUTE_NAME}
       - FRAMEPACK_URL=http://framepack-studio:7860/
-      - OLLAMA_ROUTE_NAME=ollama-api
+      - OLLAMA_ROUTE_NAME=${OLLAMA_ROUTE_NAME}
       - OLLAMA_URL=http://ollama:11434/
       - OPEN_WEBUI_URL=http://open-webui:8080/
-      - POLYASSISTANT_ROUTE_NAME=polyassistant
+      - POLYASSISTANT_ROUTE_NAME=${POLYASSISTANT_ROUTE_NAME}
       - POLYASSISTANT_URL=http://polyassistant:8080/
-      - SEARXNG_ROUTE_NAME=searxng
+      - SEARXNG_ROUTE_NAME=${HTTPS_ROUTE_NAME_SEARXNG}
       - SEARXNG_URL=http://searxng:8080/
-      - STABLE_DIFFUSION_WEBUI_ROUTE_NAME=stable-diffusion-webui
+      - STABLE_DIFFUSION_WEBUI_ROUTE_NAME=${STABLE_DIFFUSION_WEBUI_ROUTE_NAME}
       - STABLE_DIFFUSION_WEBUI_URL=http://stable-diffusion-webui:7860/
-      - WHISPER_ROUTE_NAME=whisper
+      - WHISPER_ROUTE_NAME=${WHISPER_ROUTE_NAME}
       - WHISPER_URL=http://whisper:9000/
-      - ZONOS_API_ROUTE_NAME=zonos-api
+      - ZONOS_API_ROUTE_NAME=${ZONOS_API_ROUTE_NAME}
       - ZONOS_API_URL=http://zonos:7861/
-      - ZONOS_UI_ROUTE_NAME=zonos-ui
+      - ZONOS_UI_ROUTE_NAME=${ZONOS_UI_ROUTE_NAME}
       - ZONOS_UI_URL=http://zonos:7860/
     volumes:
       - ./config/nginx/nginx.conf.template:/etc/nginx/templates/nginx.conf.template

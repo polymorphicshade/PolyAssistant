@@ -39,7 +39,7 @@ fi
 # === show HTTP endpoints ===
 #
 
-TEMP_ENDPOINTS_FILE=$(mktemp)
+TEMP_HTTP_ENDPOINTS_FILE=$(mktemp)
 
 for ID in $CONTAINER_IDS; do
     CONTAINER_INFO=$(docker inspect --format '{"Name":"{{.Name}}", "Ports":{{json .NetworkSettings.Ports}}}' "$ID")
@@ -52,17 +52,17 @@ for ID in $CONTAINER_IDS; do
     echo "$PORTS_JSON" | jq -r 'to_entries[] | select(.value != null) | .value[0].HostIp + ":" + .value[0].HostPort' | while read -r HOST_MAPPING; do
         HOST_PORT=$(echo "$HOST_MAPPING" | cut -d':' -f2)
         ENDPOINT="http://${CURRENT_HOST_IP}:${HOST_PORT} (${CONTAINER_NAME})"
-        echo "$ENDPOINT" >> "$TEMP_ENDPOINTS_FILE"
+        echo "$ENDPOINT" >> "$TEMP_HTTP_ENDPOINTS_FILE"
     done
 done
 
-if [ -s "$TEMP_ENDPOINTS_FILE" ]; then
-    sort -u "$TEMP_ENDPOINTS_FILE"
+if [ -s "$TEMP_HTTP_ENDPOINTS_FILE" ]; then
+    sort -u "$TEMP_HTTP_ENDPOINTS_FILE"
 else
     echo "No HTTP endpoints found based on exposed host ports for running containers."
 fi
 
-rm -f "$TEMP_ENDPOINTS_FILE"
+rm -f "$TEMP_HTTP_ENDPOINTS_FILE"
 
 #
 # === show HTTPS endpoints ===
@@ -93,22 +93,31 @@ LOCATION_PATHS=$(echo "$NGINX_CONFIG_CONTENT" | \
     awk '{print $2}' | \
     grep -E '^\/')
 
+TEMP_HTTPS_ENDPOINTS_FILE=$(mktemp)
+
 if [ -z "$LOCATION_PATHS" ]; then
     echo "Warning: No exposed paths (location directives starting with '/') found in the Nginx configuration."
     echo "Please verify your Nginx configuration inside the container."
-    exit 0
+else
+    echo "$LOCATION_PATHS" | while IFS= read -r path; do
+        if [ "$path" == "/" ]; then
+            echo "https://${CURRENT_HOST_IP}/" >> "$TEMP_HTTPS_ENDPOINTS_FILE"
+        else
+            if [[ "$path" != */ ]]; then
+                echo "https://${CURRENT_HOST_IP}${path}/" >> "$TEMP_HTTPS_ENDPOINTS_FILE"
+            else
+                echo "https://${CURRENT_HOST_IP}${path}" >> "$TEMP_HTTPS_ENDPOINTS_FILE"
+            fi
+        fi
+    done
 fi
 
-echo "$LOCATION_PATHS" | while IFS= read -r path; do
-    if [ "$path" == "/" ]; then
-        echo "https://${CURRENT_HOST_IP}/"
-    else
-        if [[ "$path" != */ ]]; then
-            echo "https://${CURRENT_HOST_IP}${path}/"
-        else
-            echo "https://${CURRENT_HOST_IP}${path}"
-        fi
-    fi
-done
+if [ -s "$TEMP_HTTPS_ENDPOINTS_FILE" ]; then
+    sort -u "$TEMP_HTTPS_ENDPOINTS_FILE"
+else
+    echo "No HTTPS endpoints found based on Nginx configuration."
+fi
+
+rm -f "$TEMP_HTTPS_ENDPOINTS_FILE"
 
 echo

@@ -12,10 +12,10 @@ if docker compose ps --services --filter "status=running" | grep -q .; then
 fi
 
 # update repos
-git -C .repos/PolyAssistant.Chatterbox/ pull
-git -C .repos/PolyAssistant.FramePack-Studio/ pull
-git -C .repos/PolyAssistant.StableDiffusionWebUi/ pull
-git -C .repos/PolyAssistant.Zonos/ pull
+git -C .repos/PolyAssistant.Chatterbox/ pull --rebase
+git -C .repos/PolyAssistant.FramePack-Studio/ pull --rebase
+git -C .repos/PolyAssistant.StableDiffusionWebUi/ pull --rebase
+git -C .repos/PolyAssistant.Zonos/ pull --rebase
 
 # clear build cache (so we don't continue to pile on a mess as updates are built)
 docker builder prune -f

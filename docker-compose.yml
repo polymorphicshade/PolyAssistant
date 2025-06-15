@@ -313,7 +313,7 @@ services:
       - ZONOS_UI_URL=http://zonos:7860/
     volumes:
       - ./config/nginx/nginx.conf.template:/etc/nginx/templates/nginx.conf.template
-      - ./nginx/certs:/etc/nginx/certs:ro
+      - ./config/nginx/certs:/etc/nginx/certs:ro
     networks:
       - private
       - public

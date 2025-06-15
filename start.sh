@@ -11,7 +11,12 @@ if docker compose ps --services --filter "status=running" | grep -q .; then
     docker compose down
 fi
 
-# update repos
+# other repo stuff
+git clone https://github.com/polymorphicshade/PolyAssistant.Chatterbox.git .repos/PolyAssistant.Chatterbox
+git clone https://github.com/polymorphicshade/PolyAssistant.FramePack-Studio.git .repos/PolyAssistant.FramePack-Studio
+git clone https://github.com/polymorphicshade/PolyAssistant.StableDiffusionWebUi.git .repos/PolyAssistant.StableDiffusionWebUi
+git clone https://github.com/polymorphicshade/PolyAssistant.Zonos.git .repos/PolyAssistant.Zonos
+
 git -C .repos/PolyAssistant.Chatterbox/ pull --rebase
 git -C .repos/PolyAssistant.FramePack-Studio/ pull --rebase
 git -C .repos/PolyAssistant.StableDiffusionWebUi/ pull --rebase

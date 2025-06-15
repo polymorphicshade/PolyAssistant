@@ -58,14 +58,7 @@ sed -i "s/\$nrconf{kernelhints} = -1;/#\$nrconf{kernelhints} = -1;/g" /etc/needr
 mkdir config/nginx/certs
 openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout nginx/certs/key.key -out nginx/certs/cert.crt -subj "/C=US/ST=GenericState/L=GenericCity/O=GenericOrg/OU=GenericUnit/CN=generichost.com/emailAddress=generic@example.com"
 
-# clone other repos
 mkdir .repos
-git clone https://github.com/polymorphicshade/PolyAssistant.Chatterbox.git .repos/PolyAssistant.Chatterbox
-git clone https://github.com/polymorphicshade/PolyAssistant.FramePack-Studio.git .repos/PolyAssistant.FramePack-Studio
-git clone https://github.com/polymorphicshade/PolyAssistant.StableDiffusionWebUi.git .repos/PolyAssistant.StableDiffusionWebUi
-git clone https://github.com/polymorphicshade/PolyAssistant.Zonos.git .repos/PolyAssistant.Zonos
-
-# make a directory for PolyAssistant data
 mkdir .data
 
 # a reboot is required

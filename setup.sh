@@ -56,7 +56,7 @@ sed -i "s/\$nrconf{kernelhints} = -1;/#\$nrconf{kernelhints} = -1;/g" /etc/needr
 
 # generate certs for Nginx
 mkdir config/nginx/certs
-openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout nginx/certs/key.key -out nginx/certs/cert.crt -subj "/C=US/ST=GenericState/L=GenericCity/O=GenericOrg/OU=GenericUnit/CN=generichost.com/emailAddress=generic@example.com"
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout config/nginx/certs/key.key -out config/nginx/certs/cert.crt -subj "/C=US/ST=GenericState/L=GenericCity/O=GenericOrg/OU=GenericUnit/CN=generichost.com/emailAddress=generic@example.com"
 
 mkdir .repos
 mkdir .data

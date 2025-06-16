@@ -13,4 +13,8 @@ if [ -z "$OLLAMA_CONTAINER_ID" ]; then
 else
   docker exec -it "$OLLAMA_CONTAINER_ID" ollama pull llama3.2:latest
   docker exec -it "$OLLAMA_CONTAINER_ID" ollama pull mistral-small:24b
+  docker exec -it "$OLLAMA_CONTAINER_ID" ollama pull deepseek-r1:32b
+  docker exec -it "$OLLAMA_CONTAINER_ID" ollama pull gemma3:27b
+  docker exec -it "$OLLAMA_CONTAINER_ID" ollama pull qwen2.5vl:32b
+  docker exec -it "$OLLAMA_CONTAINER_ID" ollama pull qwen2.5vl:7b
 fi

@@ -135,6 +135,8 @@ services:
       - NVIDIA_VISIBLE_DEVICES=0
       - GRADIO_SHARE=False
       - GRADIO_ROOT_PATH=/chatterbox-ui
+    volumes:
+      - ${DATA_DIRECTORY}/chatterbox:/root/.cache
     networks:
       - private
       - public
@@ -224,6 +226,7 @@ services:
       - ${DATA_DIRECTORY}/framepack-studio/loras:/app/loras
       - ${DATA_DIRECTORY}/framepack-studio/toolbox:/app/modules/toolbox/bin
       - ${DATA_DIRECTORY}/framepack-studio/hf_download:/app/hf_download
+      - ${DATA_DIRECTORY}/framepack-studio/cache:/root/.cache/
     networks:
       - private
       - public

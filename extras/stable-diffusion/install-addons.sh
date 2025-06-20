@@ -16,6 +16,7 @@ git clone https://github.com/Bing-su/adetailer
 git clone https://github.com/continue-revolution/sd-webui-segment-anything
 git clone https://github.com/alemelis/sd-webui-ar
 git clone https://github.com/huchenlei/sd-webui-openpose-editor
+git clone https://github.com/Mikubill/sd-webui-controlnet
 
 # not needed if using nginx
 # git clone https://github.com/papuSpartan/stable-diffusion-webui-auto-tls-https

@@ -3,7 +3,7 @@ services:
   llama-qwen3-coder:
     image: ghcr.io/ggml-org/llama.cpp:server-cuda
     container_name: "llama-qwen3-coder"
-    command: "-hf unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF:Q4_K_XL --jinja --ctx-size 16384 --temp 0.7 --min-p 0.0 --top-p 0.80 --top-k 20 --repeat-penalty 1.05 -ngl 99"
+    command: "-hf unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF:Q4_K_XL --jinja --ctx-size 16384 --temp 0.7 --min-p 0.0 --top-p 0.80 --top-k 20 --repeat-penalty 1.05 -ngl 99 --port 8000 --host 0.0.0.0 -n 512"
     ports:
       - 7777:8080
     volumes:

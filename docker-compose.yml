@@ -21,349 +21,349 @@ services:
               count: 1
               capabilities: [gpu]
 
-  # automatic updates
-  watchtower:
-    image: containrrr/watchtower
-    container_name: "watchtower"
-    environment:
-      - WATCHTOWER_CLEANUP=true
-    networks:
-      - private
-      - public
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    restart: unless-stopped
+  # # automatic updates
+  # watchtower:
+  #   image: containrrr/watchtower
+  #   container_name: "watchtower"
+  #   environment:
+  #     - WATCHTOWER_CLEANUP=true
+  #   networks:
+  #     - private
+  #     - public
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock
+  #   restart: unless-stopped
 
-  # Ollama
-  ollama:
-    image: ollama/ollama
-    container_name: "ollama"
-    ports:
-      - ${OLLAMA_PORT}:11434
-    volumes:
-      - ${DATA_DIRECTORY}/ollama:/root/.ollama
-    networks:
-      - private
-      - public
-    restart: unless-stopped
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
+  # # Ollama
+  # ollama:
+  #   image: ollama/ollama
+  #   container_name: "ollama"
+  #   ports:
+  #     - ${OLLAMA_PORT}:11434
+  #   volumes:
+  #     - ${DATA_DIRECTORY}/ollama:/root/.ollama
+  #   networks:
+  #     - private
+  #     - public
+  #   restart: unless-stopped
+  #   deploy:
+  #     resources:
+  #       reservations:
+  #         devices:
+  #           - driver: nvidia
+  #             count: 1
+  #             capabilities: [gpu]
 
-  # Open-WebUI
-  open-webui:
-    image: ghcr.io/open-webui/open-webui:latest
-    container_name: "open-webui"
-    environment:
-      - OLLAMA_BASE_URL=http://ollama:11434
-      - DEFAULT_MODELS=${OLLAMA_DEFAULT_MODEL}
-      - WEBUI_NAME=AI Chat
-    volumes:
-      - ${DATA_DIRECTORY}/open-webui:/app/backend/data
-    networks:
-      - private
-      - public
-    depends_on:
-      - ollama
-    restart: unless-stopped
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
+  # # Open-WebUI
+  # open-webui:
+  #   image: ghcr.io/open-webui/open-webui:latest
+  #   container_name: "open-webui"
+  #   environment:
+  #     - OLLAMA_BASE_URL=http://ollama:11434
+  #     - DEFAULT_MODELS=${OLLAMA_DEFAULT_MODEL}
+  #     - WEBUI_NAME=AI Chat
+  #   volumes:
+  #     - ${DATA_DIRECTORY}/open-webui:/app/backend/data
+  #   networks:
+  #     - private
+  #     - public
+  #   depends_on:
+  #     - ollama
+  #   restart: unless-stopped
+  #   deploy:
+  #     resources:
+  #       reservations:
+  #         devices:
+  #           - driver: nvidia
+  #             count: 1
+  #             capabilities: [gpu]
 
-  # Stable Diffusion Web UI
-  stable-diffusion-webui:
-    build:
-      context: .repos/PolyAssistant.StableDiffusionWebUi/.
-      dockerfile: Dockerfile
-    container_name: "stable-diffusion-webui"
-    ports:
-      - ${STABLE_DIFFUSION_WEBUI_PORT}:7860
-    volumes:
-      - ${DATA_DIRECTORY}/stable-diffusion-webui/outputs:/app/stable-diffusion-webui/outputs
-      - ${DATA_DIRECTORY}/stable-diffusion-webui/models:/app/stable-diffusion-webui/models
-      - ${DATA_DIRECTORY}/stable-diffusion-webui/extensions:/app/stable-diffusion-webui/extensions
-      - ${DATA_DIRECTORY}/stable-diffusion-webui/repositories:/app/stable-diffusion-webui/repositories
-      - ${DATA_DIRECTORY}/stable-diffusion-webui/cache:/root/.cache
-    networks:
-      - private
-      - public
-    command: >
-      python launch.py
-      --allow-code
-      --listen
-      --gradio-auth user:pass
-      --api
-      --administrator
-      --disable-tls-verify
-      --xformers
-      --reinstall-xformers
-      --theme=dark
-      --no-prompt-history
-      --enable-insecure-extension-access
-      --subpath=stable-diffusion-webui
-    restart: unless-stopped
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [gpu, compute, utility]
+  # # Stable Diffusion Web UI
+  # stable-diffusion-webui:
+  #   build:
+  #     context: .repos/PolyAssistant.StableDiffusionWebUi/.
+  #     dockerfile: Dockerfile
+  #   container_name: "stable-diffusion-webui"
+  #   ports:
+  #     - ${STABLE_DIFFUSION_WEBUI_PORT}:7860
+  #   volumes:
+  #     - ${DATA_DIRECTORY}/stable-diffusion-webui/outputs:/app/stable-diffusion-webui/outputs
+  #     - ${DATA_DIRECTORY}/stable-diffusion-webui/models:/app/stable-diffusion-webui/models
+  #     - ${DATA_DIRECTORY}/stable-diffusion-webui/extensions:/app/stable-diffusion-webui/extensions
+  #     - ${DATA_DIRECTORY}/stable-diffusion-webui/repositories:/app/stable-diffusion-webui/repositories
+  #     - ${DATA_DIRECTORY}/stable-diffusion-webui/cache:/root/.cache
+  #   networks:
+  #     - private
+  #     - public
+  #   command: >
+  #     python launch.py
+  #     --allow-code
+  #     --listen
+  #     --gradio-auth user:pass
+  #     --api
+  #     --administrator
+  #     --disable-tls-verify
+  #     --xformers
+  #     --reinstall-xformers
+  #     --theme=dark
+  #     --no-prompt-history
+  #     --enable-insecure-extension-access
+  #     --subpath=stable-diffusion-webui
+  #   restart: unless-stopped
+  #   deploy:
+  #     resources:
+  #       reservations:
+  #         devices:
+  #           - driver: nvidia
+  #             count: all
+  #             capabilities: [gpu, compute, utility]
 
-  # Zonos
-  zonos:
-    build:
-      context: .repos/PolyAssistant.Zonos/.
-      dockerfile: Dockerfile
-    container_name: "zonos"
-    ports:
-      - ${ZONOS_UI_PORT}:7860
-      - ${ZONOS_API_PORT}:7861
-    environment:
-      - NVIDIA_VISIBLE_DEVICES=0
-      - GRADIO_SHARE=False
-      - GRADIO_ROOT_PATH=/zonos-ui
-    volumes:
-      - ${DATA_DIRECTORY}/zonos:/root/.cache
-    networks:
-      - private
-      - public
-    user: 0:0
-    stdin_open: true
-    tty: true
-    command: ["python3", "gradio_interface.py"]
-    restart: unless-stopped
-    runtime: nvidia
+  # # Zonos
+  # zonos:
+  #   build:
+  #     context: .repos/PolyAssistant.Zonos/.
+  #     dockerfile: Dockerfile
+  #   container_name: "zonos"
+  #   ports:
+  #     - ${ZONOS_UI_PORT}:7860
+  #     - ${ZONOS_API_PORT}:7861
+  #   environment:
+  #     - NVIDIA_VISIBLE_DEVICES=0
+  #     - GRADIO_SHARE=False
+  #     - GRADIO_ROOT_PATH=/zonos-ui
+  #   volumes:
+  #     - ${DATA_DIRECTORY}/zonos:/root/.cache
+  #   networks:
+  #     - private
+  #     - public
+  #   user: 0:0
+  #   stdin_open: true
+  #   tty: true
+  #   command: ["python3", "gradio_interface.py"]
+  #   restart: unless-stopped
+  #   runtime: nvidia
 
-  # Chatterbox
-  chatterbox:
-    build:
-      context: .repos/PolyAssistant.Chatterbox/.
-      dockerfile: Dockerfile
-    container_name: "chatterbox"
-    ports:
-      - ${CHATTERBOX_UI_PORT}:7860
-      - ${CHATTERBOX_API_PORT}:7861
-    environment:
-      - NVIDIA_VISIBLE_DEVICES=0
-      - GRADIO_SHARE=False
-      - GRADIO_ROOT_PATH=/chatterbox-ui
-    volumes:
-      - ${DATA_DIRECTORY}/chatterbox:/root/.cache
-    networks:
-      - private
-      - public
-    user: 0:0
-    restart: unless-stopped
-    runtime: nvidia
+  # # Chatterbox
+  # chatterbox:
+  #   build:
+  #     context: .repos/PolyAssistant.Chatterbox/.
+  #     dockerfile: Dockerfile
+  #   container_name: "chatterbox"
+  #   ports:
+  #     - ${CHATTERBOX_UI_PORT}:7860
+  #     - ${CHATTERBOX_API_PORT}:7861
+  #   environment:
+  #     - NVIDIA_VISIBLE_DEVICES=0
+  #     - GRADIO_SHARE=False
+  #     - GRADIO_ROOT_PATH=/chatterbox-ui
+  #   volumes:
+  #     - ${DATA_DIRECTORY}/chatterbox:/root/.cache
+  #   networks:
+  #     - private
+  #     - public
+  #   user: 0:0
+  #   restart: unless-stopped
+  #   runtime: nvidia
 
-  # whisper
-  whisper:
-    image: onerahmet/openai-whisper-asr-webservice:latest-gpu
-    container_name: "whisper"
-    ports:
-      - ${WHISPER_PORT}:9000
-    environment:
-      - ASR_ENGINE=openai_whisper
-      - ASR_MODEL=base
-    volumes:
-      - ${DATA_DIRECTORY}/whisper:/root/.cache/
-    networks:
-      - private
-      - public
-    restart: unless-stopped
+  # # whisper
+  # whisper:
+  #   image: onerahmet/openai-whisper-asr-webservice:latest-gpu
+  #   container_name: "whisper"
+  #   ports:
+  #     - ${WHISPER_PORT}:9000
+  #   environment:
+  #     - ASR_ENGINE=openai_whisper
+  #     - ASR_MODEL=base
+  #   volumes:
+  #     - ${DATA_DIRECTORY}/whisper:/root/.cache/
+  #   networks:
+  #     - private
+  #     - public
+  #   restart: unless-stopped
 
-  # MySQL database
-  mariadb:
-    image: mariadb:latest
-    container_name: "mariadb"
-    environment:
-      MYSQL_ROOT_PASSWORD: pass123
-      MYSQL_DATABASE: main_db
-    volumes:
-      - ${DATA_DIRECTORY}/database:/var/lib/mysql
-    networks:
-      - private
-    user: 0:0
-    restart: unless-stopped
+  # # MySQL database
+  # mariadb:
+  #   image: mariadb:latest
+  #   container_name: "mariadb"
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: pass123
+  #     MYSQL_DATABASE: main_db
+  #   volumes:
+  #     - ${DATA_DIRECTORY}/database:/var/lib/mysql
+  #   networks:
+  #     - private
+  #   user: 0:0
+  #   restart: unless-stopped
 
-  # SearXNG
-  searxng:
-    image: docker.io/searxng/searxng:latest
-    container_name: "searxng"
-    ports:
-      - ${SEARXNG_PORT}:8080
-    volumes:
-      - ./config/searxng/settings.yml:/etc/searxng/settings.yml:rw
-      - ${DATA_DIRECTORY}/searxng:/etc/searxng:rw
-    networks:
-      - private
-      - public
-    cap_add:
-      - CHOWN
-      - SETGID
-      - SETUID
-    logging:
-      driver: json-file
-      options:
-        max-size: 1m
-        max-file: 1
-    user: 0:0
-    restart: unless-stopped
+  # # SearXNG
+  # searxng:
+  #   image: docker.io/searxng/searxng:latest
+  #   container_name: "searxng"
+  #   ports:
+  #     - ${SEARXNG_PORT}:8080
+  #   volumes:
+  #     - ./config/searxng/settings.yml:/etc/searxng/settings.yml:rw
+  #     - ${DATA_DIRECTORY}/searxng:/etc/searxng:rw
+  #   networks:
+  #     - private
+  #     - public
+  #   cap_add:
+  #     - CHOWN
+  #     - SETGID
+  #     - SETUID
+  #   logging:
+  #     driver: json-file
+  #     options:
+  #       max-size: 1m
+  #       max-file: 1
+  #   user: 0:0
+  #   restart: unless-stopped
 
-  # Crawl4Ai
-  crawl4ai:
-    image: unclecode/crawl4ai:latest
-    container_name: "crawl4ai"
-    ports:
-      - ${CRAWL4AI_PORT}:11235 # http://<ip>:11235/playground/
-    networks:
-      - private
-      - public
-    restart: unless-stopped
+  # # Crawl4Ai
+  # crawl4ai:
+  #   image: unclecode/crawl4ai:latest
+  #   container_name: "crawl4ai"
+  #   ports:
+  #     - ${CRAWL4AI_PORT}:11235 # http://<ip>:11235/playground/
+  #   networks:
+  #     - private
+  #     - public
+  #   restart: unless-stopped
 
-  # FramePack-Studio
-  framepack-studio:
-    build:
-      context: .repos/PolyAssistant.FramePack-Studio/.
-      dockerfile: Dockerfile
-    container_name: "framepack-studio"
-    ports:
-      - ${FRAMEPACK_STUDIO_PORT}:7860
-    environment:
-      - GRADIO_ROOT_PATH=/framepack-studio
-      - NVIDIA_VISIBLE_DEVICES=0
-    volumes:
-      - ${DATA_DIRECTORY}/framepack-studio/input:/app/input_files
-      - ${DATA_DIRECTORY}/framepack-studio/output:/app/output
-      - ${DATA_DIRECTORY}/framepack-studio/loras:/app/loras
-      - ${DATA_DIRECTORY}/framepack-studio/toolbox:/app/modules/toolbox/bin
-      - ${DATA_DIRECTORY}/framepack-studio/hf_download:/app/hf_download
-      - ${DATA_DIRECTORY}/framepack-studio/cache:/root/.cache/
-    networks:
-      - private
-      - public
-    user: 0:0
-    restart: unless-stopped
-    runtime: nvidia
+  # # FramePack-Studio
+  # framepack-studio:
+  #   build:
+  #     context: .repos/PolyAssistant.FramePack-Studio/.
+  #     dockerfile: Dockerfile
+  #   container_name: "framepack-studio"
+  #   ports:
+  #     - ${FRAMEPACK_STUDIO_PORT}:7860
+  #   environment:
+  #     - GRADIO_ROOT_PATH=/framepack-studio
+  #     - NVIDIA_VISIBLE_DEVICES=0
+  #   volumes:
+  #     - ${DATA_DIRECTORY}/framepack-studio/input:/app/input_files
+  #     - ${DATA_DIRECTORY}/framepack-studio/output:/app/output
+  #     - ${DATA_DIRECTORY}/framepack-studio/loras:/app/loras
+  #     - ${DATA_DIRECTORY}/framepack-studio/toolbox:/app/modules/toolbox/bin
+  #     - ${DATA_DIRECTORY}/framepack-studio/hf_download:/app/hf_download
+  #     - ${DATA_DIRECTORY}/framepack-studio/cache:/root/.cache/
+  #   networks:
+  #     - private
+  #     - public
+  #   user: 0:0
+  #   restart: unless-stopped
+  #   runtime: nvidia
 
-  # PolyAssistant
-  polyassistant:
-    build:
-      context: ./src
-      dockerfile: PolyAssistant.Api/Dockerfile
-    container_name: "polyassistant"
-    ports:
-      - ${POLYASSISTANT_PORT}:8080
-    environment:
-      - Caching__ConnectionString=Server=mariadb;Port=3306;Database=polyassistant.api;Uid=root;Pwd=pass123;
-      - Caching__DatabaseType=MySql
-      - Chatterbox__Url=http://chatterbox:7861
-      - Crawl4Ai__Url=http://crawl4ai:11235
-      - FramePack-Studio__Url=http://framepack-studio:7860
-      - Ollama__DefaultModel=${OLLAMA_DEFAULT_MODEL}
-      - Ollama__DefaultSystemMessage=You are a helpful assistant. Keep your responses brief.
-      - Ollama__Url=http://ollama:11434
-      - SearXng__Url=http://searxng:8080
-      - Stable-Diffusion-WebUi__Url=http://stable-diffusion-webui:7860
-      - Whisper__Url=http://whisper:9000
-      - Zonos__Url=http://zonos:7861
-    volumes:
-      - ${DATA_DIRECTORY}/uploads:/app/uploads
-    networks:
-      - private
-      - public
-    depends_on:
-      chatterbox:
-        condition: service_started
-      crawl4ai:
-        condition: service_started
-      framepack-studio:
-        condition: service_started
-      mariadb:
-        condition: service_started
-      ollama:
-        condition: service_started
-      open-webui:
-        condition: service_started
-      searxng:
-        condition: service_started
-      stable-diffusion-webui:
-        condition: service_started
-      whisper:
-        condition: service_started
-      zonos:
-        condition: service_started
-    user: 0:0
-    restart: unless-stopped
+  # # PolyAssistant
+  # polyassistant:
+  #   build:
+  #     context: ./src
+  #     dockerfile: PolyAssistant.Api/Dockerfile
+  #   container_name: "polyassistant"
+  #   ports:
+  #     - ${POLYASSISTANT_PORT}:8080
+  #   environment:
+  #     - Caching__ConnectionString=Server=mariadb;Port=3306;Database=polyassistant.api;Uid=root;Pwd=pass123;
+  #     - Caching__DatabaseType=MySql
+  #     - Chatterbox__Url=http://chatterbox:7861
+  #     - Crawl4Ai__Url=http://crawl4ai:11235
+  #     - FramePack-Studio__Url=http://framepack-studio:7860
+  #     - Ollama__DefaultModel=${OLLAMA_DEFAULT_MODEL}
+  #     - Ollama__DefaultSystemMessage=You are a helpful assistant. Keep your responses brief.
+  #     - Ollama__Url=http://ollama:11434
+  #     - SearXng__Url=http://searxng:8080
+  #     - Stable-Diffusion-WebUi__Url=http://stable-diffusion-webui:7860
+  #     - Whisper__Url=http://whisper:9000
+  #     - Zonos__Url=http://zonos:7861
+  #   volumes:
+  #     - ${DATA_DIRECTORY}/uploads:/app/uploads
+  #   networks:
+  #     - private
+  #     - public
+  #   depends_on:
+  #     chatterbox:
+  #       condition: service_started
+  #     crawl4ai:
+  #       condition: service_started
+  #     framepack-studio:
+  #       condition: service_started
+  #     mariadb:
+  #       condition: service_started
+  #     ollama:
+  #       condition: service_started
+  #     open-webui:
+  #       condition: service_started
+  #     searxng:
+  #       condition: service_started
+  #     stable-diffusion-webui:
+  #       condition: service_started
+  #     whisper:
+  #       condition: service_started
+  #     zonos:
+  #       condition: service_started
+  #   user: 0:0
+  #   restart: unless-stopped
 
-  # Nginx Proxy for HTTPS
-  nginx:
-    image: nginx:latest
-    container_name: "nginx"
-    ports:
-      - 443:443
-    environment:
-      - CHATTERBOX_API_ROUTE_NAME=${CHATTERBOX_API_ROUTE_NAME}
-      - CHATTERBOX_API_URL=http://chatterbox:7861/
-      - CHATTERBOX_UI_ROUTE_NAME=${CHATTERBOX_UI_ROUTE_NAME}
-      - CHATTERBOX_UI_URL=http://chatterbox:7860/
-      - CRAWL4AI_ROUTE_NAME=${CRAWL4AI_ROUTE_NAME}
-      - CRAWL4AI_URL=http://crawl4ai:11235/
-      - FRAMEPACK_ROUTE_NAME=${FRAMEPACK_STUDIO_ROUTE_NAME}
-      - FRAMEPACK_URL=http://framepack-studio:7860/
-      - OLLAMA_ROUTE_NAME=${OLLAMA_ROUTE_NAME}
-      - OLLAMA_URL=http://ollama:11434/
-      - OPEN_WEBUI_URL=http://open-webui:8080/
-      - POLYASSISTANT_ROUTE_NAME=${POLYASSISTANT_ROUTE_NAME}
-      - POLYASSISTANT_URL=http://polyassistant:8080/
-      - SEARXNG_ROUTE_NAME=${SEARXNG_ROUTE_NAME}
-      - SEARXNG_URL=http://searxng:8080/
-      - STABLE_DIFFUSION_WEBUI_ROUTE_NAME=${STABLE_DIFFUSION_WEBUI_ROUTE_NAME}
-      - STABLE_DIFFUSION_WEBUI_URL=http://stable-diffusion-webui:7860/
-      - WHISPER_ROUTE_NAME=${WHISPER_ROUTE_NAME}
-      - WHISPER_URL=http://whisper:9000/
-      - ZONOS_API_ROUTE_NAME=${ZONOS_API_ROUTE_NAME}
-      - ZONOS_API_URL=http://zonos:7861/
-      - ZONOS_UI_ROUTE_NAME=${ZONOS_UI_ROUTE_NAME}
-      - ZONOS_UI_URL=http://zonos:7860/
-    volumes:
-      - ./config/nginx/nginx.conf.template:/etc/nginx/templates/nginx.conf.template
-      - ./config/nginx/certs:/etc/nginx/certs:ro
-    networks:
-      - private
-      - public
-    depends_on:
-      chatterbox:
-        condition: service_started
-      crawl4ai:
-        condition: service_started
-      framepack-studio:
-        condition: service_started
-      ollama:
-        condition: service_started
-      open-webui:
-        condition: service_started
-      polyassistant:
-        condition: service_started
-      searxng:
-        condition: service_started
-      stable-diffusion-webui:
-        condition: service_started
-      whisper:
-        condition: service_started
-      zonos:
-        condition: service_started
-    user: 0:0
-    restart: unless-stopped
+  # # Nginx Proxy for HTTPS
+  # nginx:
+  #   image: nginx:latest
+  #   container_name: "nginx"
+  #   ports:
+  #     - 443:443
+  #   environment:
+  #     - CHATTERBOX_API_ROUTE_NAME=${CHATTERBOX_API_ROUTE_NAME}
+  #     - CHATTERBOX_API_URL=http://chatterbox:7861/
+  #     - CHATTERBOX_UI_ROUTE_NAME=${CHATTERBOX_UI_ROUTE_NAME}
+  #     - CHATTERBOX_UI_URL=http://chatterbox:7860/
+  #     - CRAWL4AI_ROUTE_NAME=${CRAWL4AI_ROUTE_NAME}
+  #     - CRAWL4AI_URL=http://crawl4ai:11235/
+  #     - FRAMEPACK_ROUTE_NAME=${FRAMEPACK_STUDIO_ROUTE_NAME}
+  #     - FRAMEPACK_URL=http://framepack-studio:7860/
+  #     - OLLAMA_ROUTE_NAME=${OLLAMA_ROUTE_NAME}
+  #     - OLLAMA_URL=http://ollama:11434/
+  #     - OPEN_WEBUI_URL=http://open-webui:8080/
+  #     - POLYASSISTANT_ROUTE_NAME=${POLYASSISTANT_ROUTE_NAME}
+  #     - POLYASSISTANT_URL=http://polyassistant:8080/
+  #     - SEARXNG_ROUTE_NAME=${SEARXNG_ROUTE_NAME}
+  #     - SEARXNG_URL=http://searxng:8080/
+  #     - STABLE_DIFFUSION_WEBUI_ROUTE_NAME=${STABLE_DIFFUSION_WEBUI_ROUTE_NAME}
+  #     - STABLE_DIFFUSION_WEBUI_URL=http://stable-diffusion-webui:7860/
+  #     - WHISPER_ROUTE_NAME=${WHISPER_ROUTE_NAME}
+  #     - WHISPER_URL=http://whisper:9000/
+  #     - ZONOS_API_ROUTE_NAME=${ZONOS_API_ROUTE_NAME}
+  #     - ZONOS_API_URL=http://zonos:7861/
+  #     - ZONOS_UI_ROUTE_NAME=${ZONOS_UI_ROUTE_NAME}
+  #     - ZONOS_UI_URL=http://zonos:7860/
+  #   volumes:
+  #     - ./config/nginx/nginx.conf.template:/etc/nginx/templates/nginx.conf.template
+  #     - ./config/nginx/certs:/etc/nginx/certs:ro
+  #   networks:
+  #     - private
+  #     - public
+  #   depends_on:
+  #     chatterbox:
+  #       condition: service_started
+  #     crawl4ai:
+  #       condition: service_started
+  #     framepack-studio:
+  #       condition: service_started
+  #     ollama:
+  #       condition: service_started
+  #     open-webui:
+  #       condition: service_started
+  #     polyassistant:
+  #       condition: service_started
+  #     searxng:
+  #       condition: service_started
+  #     stable-diffusion-webui:
+  #       condition: service_started
+  #     whisper:
+  #       condition: service_started
+  #     zonos:
+  #       condition: service_started
+  #   user: 0:0
+  #   restart: unless-stopped
 
 networks:
   public:

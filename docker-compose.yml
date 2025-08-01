@@ -7,6 +7,7 @@ services:
     ports:
       - 7777:8080
     volumes:
+      - ${DATA_DIRECTORY}/llama/cache:/root/.cache
       - ${DATA_DIRECTORY}/llama/models:/models
     networks:
       - private

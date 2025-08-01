@@ -7,7 +7,7 @@ services:
     ports:
       - 7777:8000
     volumes:
-      - ${DATA_DIRECTORY}/ollama/models:/models
+      - ${DATA_DIRECTORY}/llama/models:/models
     networks:
       - private
       - public
